@@ -2,46 +2,44 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 export default async function Home() {
-  const { data: territorios, error } = await supabase
-    .from("territorios")
-    .select("*")
-    .order("numero");
-
-  console.log(error);
-  console.log(territorios);
+  const { data: congregacoes } = await supabase
+    .from("congregacoes")
+    .select(`
+      id,
+      nome,
+      cidade_base,
+      idioma,
+      territorios (
+        id
+      )
+    `)
+    .eq("ativa", true)
+    .order("nome");
 
   return (
     <main className="min-h-screen bg-slate-100 p-4">
-      <div className="max-w-xl mx-auto">
-
-        <h1 className="text-4xl font-bold mb-6">
-          Territórios
-        </h1>
-
-        {error && (
-          <pre className="bg-red-100 p-4 rounded mb-4">
-            {JSON.stringify(error, null, 2)}
-          </pre>
-        )}
+      <div className="mx-auto max-w-xl">
+        <h1 className="mb-6 text-4xl font-bold">Congregações</h1>
 
         <div className="space-y-4">
-          {territorios?.map((territorio) => (
+          {congregacoes?.map((congregacao: any) => (
             <Link
-              key={territorio.id}
-              href={`/territorios/${territorio.id}`}
-              className="block bg-white rounded-xl shadow p-4 hover:bg-slate-50 transition"
+              key={congregacao.id}
+              href={`/congregacoes/${congregacao.id}`}
+              className="block rounded-xl bg-white p-5 shadow hover:bg-slate-50"
             >
-              <h2 className="text-xl font-bold">
-                {territorio.nome}
-              </h2>
+              <h2 className="text-xl font-bold">{congregacao.nome}</h2>
 
               <p className="text-gray-500">
-                {territorio.bairro} • {territorio.cidade}
+                {congregacao.cidade_base} • {congregacao.idioma}
+              </p>
+
+              <p className="mt-2 text-sm font-semibold text-blue-600">
+                {congregacao.territorios?.length ?? 0} territórios
               </p>
             </Link>
           ))}
         </div>
-
       </div>
     </main>
   );
