@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, MapPinned, RotateCcw } from "lucide-react";
+import { Copy, MapPinned, MessageCircle, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -21,13 +21,32 @@ export default function StatusEndereco({ endereco }: Props) {
   const [statusAtual, setStatusAtual] = useState<Status>(endereco.status || "nao_visitado");
   const [ultimaVisita, setUltimaVisita] = useState<string | null>(endereco.ultima_visita || null);
 
+  const mapsUrl =
+    endereco.gps_url ||
+    endereco.link_gps ||
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      `${endereco.rua}, ${endereco.numero}, ${endereco.bairro}, ${endereco.cidade}`
+    )}`;
+
+  const textoEndereco = `${endereco.rua}, ${endereco.numero}, ${endereco.bairro}, ${endereco.cidade}`;
+
+  const textoMensagem = `📍 Endereço
+
+Rua: ${endereco.rua}
+Número: ${endereco.numero}
+Bairro: ${endereco.bairro}
+Cidade: ${endereco.cidade}
+Status: ${statusConfig[statusAtual].label}
+${ultimaVisita ? `Última visita: ${ultimaVisita}` : ""}
+
+${mapsUrl}`;
+
   async function alterarStatus(status: Status) {
     const hoje = new Date().toISOString().split("T")[0];
 
-    const dados =
-      status === "visitado"
-        ? { status, ultima_visita: hoje }
-        : { status };
+    const dados = status === "visitado"
+      ? { status, ultima_visita: hoje }
+      : { status };
 
     setStatusAtual(status);
     if (status === "visitado") setUltimaVisita(hoje);
@@ -42,28 +61,29 @@ export default function StatusEndereco({ endereco }: Props) {
   }
 
   async function desfazerVisita() {
-    const confirmar = confirm("Desfazer visita e limpar a data?");
-    if (!confirmar) return;
+    if (!confirm("Desfazer visita e limpar a data?")) return;
 
     setStatusAtual("nao_visitado");
     setUltimaVisita(null);
 
-    const { error } = await supabase
+    await supabase
       .from("enderecos")
       .update({ status: "nao_visitado", ultima_visita: null })
       .eq("id", endereco.id);
-
-    if (error) alert("Erro ao desfazer visita.");
   }
 
-  function copiar() {
-    navigator.clipboard.writeText(`${endereco.rua}, ${endereco.numero}, ${endereco.bairro}`);
+  function copiarEndereco() {
+    navigator.clipboard.writeText(textoEndereco);
     alert("Endereço copiado!");
   }
 
+  function copiarMensagem() {
+    navigator.clipboard.writeText(textoMensagem);
+    alert("Mensagem copiada para WhatsApp!");
+  }
+
   function abrirMaps() {
-    const texto = encodeURIComponent(`${endereco.rua}, ${endereco.numero}, ${endereco.bairro}, ${endereco.cidade}`);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${texto}`, "_blank");
+    window.open(mapsUrl, "_blank");
   }
 
   function botaoClasse(status: Status) {
@@ -74,7 +94,7 @@ export default function StatusEndereco({ endereco }: Props) {
   return (
     <div className="rounded-xl bg-white p-4 shadow">
       <div className="font-semibold">{endereco.rua}, {endereco.numero}</div>
-      <div className="mb-3 text-sm text-gray-500">{endereco.bairro}</div>
+      <div className="mb-3 text-sm text-gray-500">{endereco.bairro} • {endereco.cidade}</div>
 
       <div className="mb-3 text-sm font-semibold">
         Status atual:{" "}
@@ -83,7 +103,9 @@ export default function StatusEndereco({ endereco }: Props) {
         </span>
       </div>
 
-      {ultimaVisita && <div className="mb-3 text-sm text-gray-500">Última visita: {ultimaVisita}</div>}
+      {ultimaVisita && (
+        <div className="mb-3 text-sm text-gray-500">Última visita: {new Date(ultimaVisita + "T00:00:00").toLocaleDateString("pt-BR")}</div>
+      )}
 
       <div className="mb-4 flex flex-wrap gap-2">
         <button onClick={() => alterarStatus("visitado")} className={`rounded px-3 py-1 text-sm font-semibold ${botaoClasse("visitado")}`}>Visitado</button>
@@ -99,9 +121,21 @@ export default function StatusEndereco({ endereco }: Props) {
         </button>
       )}
 
-      <div className="flex gap-3">
-        <button onClick={copiar} className="flex items-center gap-2 rounded border px-3 py-2"><Copy size={18} />Copiar</button>
-        <button onClick={abrirMaps} className="flex items-center gap-2 rounded border px-3 py-2"><MapPinned size={18} />Maps</button>
+      <div className="flex flex-wrap gap-3">
+        <button onClick={copiarEndereco} className="flex items-center gap-2 rounded border px-3 py-2">
+          <Copy size={18} />
+          Copiar
+        </button>
+
+        <button onClick={copiarMensagem} className="flex items-center gap-2 rounded border px-3 py-2">
+          <MessageCircle size={18} />
+          Copiar mensagem
+        </button>
+
+        <button onClick={abrirMaps} className="flex items-center gap-2 rounded border px-3 py-2">
+          <MapPinned size={18} />
+          Maps
+        </button>
       </div>
     </div>
   );
