@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
-import StatusEndereco from "@/components/enderecos/StatusEndereco";
 import NovoEnderecoForm from "@/components/enderecos/NovoEnderecoForm";
-import Link from "next/link";
+import ListaEnderecosSelecionavel from "@/components/enderecos/ListaEnderecosSelecionavel";
+import { AppShell } from "@/components/layout/AppShell";
 
 export default async function Territorio({
   params,
@@ -16,6 +16,12 @@ export default async function Territorio({
     .eq("id", id)
     .single();
 
+  const { data: congregacao } = await supabase
+    .from("congregacoes")
+    .select("*")
+    .eq("id", territorio?.congregacao_id)
+    .single();
+
   const { data: enderecos } = await supabase
     .from("enderecos")
     .select("*")
@@ -23,33 +29,25 @@ export default async function Territorio({
     .order("id");
 
   return (
-    <main className="min-h-screen bg-slate-100 p-4">
-      <div className="mx-auto max-w-xl">
-        <Link
-          href={`/congregacoes/${territorio?.congregacao_id}/territorios`}
-          className="mb-4 inline-block rounded-lg bg-white px-4 py-2 shadow"
-        >
-          ← Voltar
-        </Link>
+    <AppShell
+      title={territorio?.nome ?? "Território"}
+      subtitle={`${territorio?.bairro ?? ""} • ${territorio?.cidade ?? ""} • ${
+        enderecos?.length ?? 0
+      } endereços`}
+      backHref={`/congregacoes/${territorio?.congregacao_id}/territorios`}
+      congregacaoId={String(territorio?.congregacao_id)}
+    >
+      <NovoEnderecoForm
+        territorioId={territorio.id}
+        cidade={territorio.cidade}
+        bairro={territorio.bairro}
+      />
 
-        <h1 className="mb-2 text-3xl font-bold">{territorio?.nome}</h1>
-
-        <p className="mb-6 text-gray-500">
-          {territorio?.bairro} • {territorio?.cidade}
-        </p>
-
-        <NovoEnderecoForm
-          territorioId={territorio.id}
-          cidade={territorio.cidade}
-          bairro={territorio.bairro}
-        />
-
-        <div className="space-y-3">
-          {enderecos?.map((endereco) => (
-            <StatusEndereco key={endereco.id} endereco={endereco} />
-          ))}
-        </div>
-      </div>
-    </main>
+      <ListaEnderecosSelecionavel
+        enderecos={enderecos ?? []}
+        territorio={territorio}
+        congregacao={congregacao}
+      />
+    </AppShell>
   );
 }
