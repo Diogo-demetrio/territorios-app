@@ -31,10 +31,12 @@ export default async function MapaPage({
       longitude,
       link_google_maps,
       territorios!inner (
-        id,
-        nome,
-        congregacao_id
-      )
+  id,
+  nome,
+  bairro,
+  cidade,
+  congregacao_id
+)
     `)
     .eq("territorios.congregacao_id", id);
 
