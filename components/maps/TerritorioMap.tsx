@@ -35,8 +35,8 @@ export default function TerritorioMap({ enderecos }: Props) {
   const centro = pontos[0]?.coords ?? [-28.6778, -49.3697];
 
   return (
-    <div className="overflow-hidden rounded-3xl bg-white shadow ring-1 ring-slate-200">
-      <MapContainer center={centro} zoom={13} className="h-[70vh] w-full">
+    <div className="relative z-0 mb-24 overflow-hidden rounded-3xl bg-white shadow ring-1 ring-slate-200">
+      <MapContainer center={centro} zoom={13} className="h-[55vh] w-full">
         <TileLayer
           attribution="© OpenStreetMap"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

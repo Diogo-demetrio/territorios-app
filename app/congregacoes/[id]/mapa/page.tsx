@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft, Search, RefreshCw } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import MapaClient from "@/components/maps/MapaClient";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import MapaFiltros from "@/components/maps/MapaFiltros";
 
 export default async function MapaPage({
   params,
@@ -29,7 +29,10 @@ export default async function MapaPage({
       latlong,
       latitude,
       longitude,
+      link_google_maps,
       territorios!inner (
+        id,
+        nome,
         congregacao_id
       )
     `)
@@ -53,7 +56,7 @@ export default async function MapaPage({
       </header>
 
       <section className="mx-auto max-w-3xl p-4">
-        <MapaClient enderecos={enderecos ?? []} />
+        <MapaFiltros enderecos={enderecos ?? []} />
       </section>
 
       <MobileBottomNav congregacaoId={id} />
