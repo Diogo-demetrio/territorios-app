@@ -1,4 +1,8 @@
 import Link from "next/link";
+import { ArrowLeft, Search, RefreshCw } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import MapaClient from "@/components/maps/MapaClient";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 
 export default async function MapaPage({
   params,
@@ -7,26 +11,52 @@ export default async function MapaPage({
 }) {
   const { id } = await params;
 
+  const { data: congregacao } = await supabase
+    .from("congregacoes")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  const { data: enderecos } = await supabase
+    .from("enderecos")
+    .select(`
+      id,
+      rua,
+      numero,
+      bairro,
+      cidade,
+      status,
+      latlong,
+      latitude,
+      longitude,
+      territorios!inner (
+        congregacao_id
+      )
+    `)
+    .eq("territorios.congregacao_id", id);
+
   return (
-    <main className="min-h-screen bg-slate-100 p-6">
-      <div className="mx-auto max-w-6xl">
+    <main className="min-h-screen bg-slate-100 pb-24">
+      <header className="sticky top-0 z-20 bg-violet-700 px-4 py-4 text-white shadow">
+        <div className="mx-auto flex max-w-3xl items-center gap-4">
+          <Link href={`/congregacoes/${id}`} className="rounded-full p-2 hover:bg-white/10">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
 
-        <Link
-          href={`/congregacoes/${id}`}
-          className="mb-4 inline-block rounded bg-white px-4 py-2 shadow"
-        >
-          ← Voltar
-        </Link>
+          <h1 className="flex-1 text-base font-semibold">
+            Mapa · {congregacao?.nome}
+          </h1>
 
-        <h1 className="mb-6 text-3xl font-bold">
-          Mapa da Congregação
-        </h1>
-
-        <div className="rounded-xl bg-white p-10 shadow">
-          Em construção...
+          <Search className="h-5 w-5" />
+          <RefreshCw className="h-5 w-5" />
         </div>
+      </header>
 
-      </div>
+      <section className="mx-auto max-w-3xl p-4">
+        <MapaClient enderecos={enderecos ?? []} />
+      </section>
+
+      <MobileBottomNav congregacaoId={id} />
     </main>
   );
 }

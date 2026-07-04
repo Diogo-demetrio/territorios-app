@@ -1,46 +1,89 @@
-import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import CongregacaoCard from "@/components/cards/CongregacaoCard";
+import { Search, RefreshCw } from "lucide-react";
 
 export default async function Home() {
   const { data: congregacoes } = await supabase
     .from("congregacoes")
-    .select(`
-      id,
-      nome,
-      cidade_base,
-      idioma,
-      territorios (
-        id
-      )
-    `)
-    .eq("ativa", true)
+    .select("*")
     .order("nome");
 
+  const cards =
+    (await Promise.all(
+      (congregacoes ?? []).map(async (c) => {
+        const { count: totalTerritorios } = await supabase
+          .from("territorios")
+          .select("*", { count: "exact", head: true })
+          .eq("congregacao_id", c.id);
+
+        const { data: territorios } = await supabase
+          .from("territorios")
+          .select("id")
+          .eq("congregacao_id", c.id);
+
+        const ids = territorios?.map((t) => t.id) ?? [];
+
+        let totalEnderecos = 0;
+
+        if (ids.length) {
+          const { count } = await supabase
+            .from("enderecos")
+            .select("*", { count: "exact", head: true })
+            .in("territorio_id", ids);
+
+          totalEnderecos = count ?? 0;
+        }
+
+        return {
+          ...c,
+          totalTerritorios: totalTerritorios ?? 0,
+          totalEnderecos,
+        };
+      })
+    )) ?? [];
+
   return (
-    <main className="min-h-screen bg-slate-100 p-4">
-      <div className="mx-auto max-w-xl">
-        <h1 className="mb-6 text-4xl font-bold">Congregações</h1>
+    <main className="min-h-screen bg-slate-100">
 
-        <div className="space-y-4">
-          {congregacoes?.map((congregacao: any) => (
-            <Link
-              key={congregacao.id}
-              href={`/congregacoes/${congregacao.id}`}
-              className="block rounded-xl bg-white p-5 shadow hover:bg-slate-50"
-            >
-              <h2 className="text-xl font-bold">{congregacao.nome}</h2>
+      <header className="sticky top-0 z-20 bg-violet-700 px-6 py-5 text-white shadow">
 
-              <p className="text-gray-500">
-                {congregacao.cidade_base} • {congregacao.idioma}
-              </p>
+        <div className="mx-auto flex max-w-3xl items-center justify-between">
 
-              <p className="mt-2 text-sm font-semibold text-blue-600">
-                {congregacao.territorios?.length ?? 0} territórios
-              </p>
-            </Link>
-          ))}
+          <h1 className="text-xl font-semibold">
+            Congregações
+          </h1>
+
+          <div className="flex gap-5">
+
+            <Search className="h-5 w-5 cursor-pointer" />
+
+            <RefreshCw className="h-5 w-5 cursor-pointer" />
+
+          </div>
+
         </div>
-      </div>
+
+      </header>
+
+      <section className="mx-auto max-w-3xl p-6">
+
+        <p className="mb-5 text-slate-500">
+          Selecione uma congregação para continuar.
+        </p>
+
+        <div className="space-y-5">
+
+          {cards.map((c) => (
+            <CongregacaoCard
+              key={c.id}
+              congregacao={c}
+            />
+          ))}
+
+        </div>
+
+      </section>
+
     </main>
   );
 }

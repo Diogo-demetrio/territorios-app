@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { ArrowLeft, Search, RefreshCw } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { FiltroTerritorios } from "@/components/territorios/FiltroTerritorios";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 
 export default async function TerritoriosDaCongregacao({
   params,
@@ -22,29 +24,37 @@ export default async function TerritoriosDaCongregacao({
       nome,
       cidade,
       bairro,
-      ponto_referencia,
-      numero
+      numero,
+      enderecos (
+        id,
+        status
+      )
     `)
     .eq("congregacao_id", id)
     .order("bairro")
     .order("numero");
 
   return (
-    <main className="min-h-screen bg-slate-100 p-4">
-      <div className="mx-auto max-w-xl">
-        <Link
-          href={`/congregacoes/${id}`}
-          className="mb-4 inline-block text-sm text-blue-600"
-        >
-          ← Voltar
-        </Link>
+    <main className="min-h-screen bg-slate-100 pb-24">
+      <header className="sticky top-0 z-20 bg-violet-700 px-4 py-4 text-white shadow">
+        <div className="mx-auto flex max-w-3xl items-center gap-4">
+          <Link href={`/congregacoes/${id}`} className="rounded-full p-2 hover:bg-white/10">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
 
-        <h1 className="mb-2 text-3xl font-bold">Territórios</h1>
+          <h1 className="flex-1 text-base font-semibold">
+            Territórios · {congregacao?.nome}
+          </h1>
 
-        <p className="mb-6 text-gray-500">{congregacao?.nome}</p>
+          <Search className="h-5 w-5" />
+          <RefreshCw className="h-5 w-5" />
+        </div>
+      </header>
 
+      <section className="mx-auto max-w-3xl p-4">
         <FiltroTerritorios territorios={territorios ?? []} />
-      </div>
+      </section>
+      <MobileBottomNav congregacaoId={id} />
     </main>
   );
 }
