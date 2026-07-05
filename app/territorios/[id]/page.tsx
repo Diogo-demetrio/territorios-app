@@ -37,6 +37,8 @@ export default async function Territorio({
   const naoVisitado = lista.filter((e) => e.status === "nao_visitado" || !e.status).length;
   const naoAtendeu = lista.filter((e) => e.status === "nao_atendeu").length;
   const novo = lista.filter((e) => e.status === "novo").length;
+  const progresso =
+  lista.length > 0 ? Math.round((visitado / lista.length) * 100) : 0;
 
   return (
     <main className="min-h-screen bg-slate-100 pb-24">
@@ -59,26 +61,49 @@ export default async function Territorio({
       </header>
 
       <section className="mx-auto max-w-3xl p-4">
-        <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-          <h2 className="text-base font-semibold">{territorio?.nome}</h2>
+        <div className="mb-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+  <div className="flex items-start justify-between gap-3">
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">
+        Território
+      </p>
 
-          <p className="mt-0.5 text-xs text-slate-500">
-            {territorio?.bairro} · {territorio?.cidade} · {congregacao?.nome}
-          </p>
+      <h2 className="mt-1 text-xl font-bold text-slate-900">
+        {territorio?.nome}
+      </h2>
 
-          <div className="mt-3 flex items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-1.5">
-              <StatusBadge status="visitado" count={visitado} />
-              <StatusBadge status="nao_visitado" count={naoVisitado} />
-              <StatusBadge status="nao_atendeu" count={naoAtendeu} />
-              <StatusBadge status="novo" count={novo} />
-            </div>
+      <p className="mt-1 text-sm text-slate-500">
+        {territorio?.bairro} · {territorio?.cidade} · {congregacao?.nome}
+      </p>
+    </div>
 
-            <span className="rounded-lg bg-violet-100 px-2 py-1 text-xs font-semibold text-violet-700">
-              {lista.length} end.
-            </span>
-          </div>
-        </div>
+    <span className="rounded-full bg-violet-100 px-3 py-1 text-sm font-bold text-violet-700">
+      {lista.length} end.
+    </span>
+  </div>
+
+  <div className="mt-4 flex flex-wrap gap-1.5">
+    <StatusBadge status="visitado" count={visitado} />
+    <StatusBadge status="nao_visitado" count={naoVisitado} />
+    <StatusBadge status="nao_atendeu" count={naoAtendeu} />
+    <StatusBadge status="novo" count={novo} />
+<div className="mt-4">
+  <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
+    <span>Progresso do território</span>
+    <span>{progresso}% visitado</span>
+  </div>
+
+  <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+    <div
+      className="h-full rounded-full bg-green-500 transition-all"
+      style={{ width: `${progresso}%` }}
+    />
+  </div>
+</div>
+
+  </div>
+</div>
+         
 
         <NovoEnderecoForm
           territorioId={territorio.id}
