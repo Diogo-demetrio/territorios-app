@@ -1,87 +1,54 @@
 "use client";
 
-import {
-  Copy,
-  MapPinned,
-  MessageCircle,
-  RotateCcw,
-  Calendar,
-  Home,
-} from "lucide-react";
+import { Calendar, Home, RotateCcw, Info, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-
-type Status = "visitado" | "nao_atendeu" | "nao_visitado" | "novo";
+import {
+  STATUS_ENDERECO,
+  normalizarStatus,
+  type StatusEndereco as Status,
+} from "@/lib/status";
+import {
+  obterTextoEndereco,
+  obterGoogleMapsUrl,
+  montarMensagemEndereco,
+  formatarDataBR,
+} from "@/lib/endereco";
+import EnderecoActions from "@/components/actions/EnderecoActions";
+import StatusSelector from "@/components/status/StatusSelector";
 
 type Props = {
   endereco: any;
 };
 
-const statusConfig = {
-  visitado: {
-    label: "Visitado",
-    active: "bg-green-600 text-white ring-2 ring-green-200",
-    badge: "bg-green-100 text-green-700",
-    dot: "bg-green-500",
-  },
-  nao_atendeu: {
-    label: "Não atendeu",
-    active: "bg-orange-500 text-white ring-2 ring-orange-200",
-    badge: "bg-orange-100 text-orange-700",
-    dot: "bg-orange-500",
-  },
-  nao_visitado: {
-    label: "Não visitado",
-    active: "bg-red-500 text-white ring-2 ring-red-200",
-    badge: "bg-red-100 text-red-700",
-    dot: "bg-red-500",
-  },
-  novo: {
-    label: "Novo",
-    active: "bg-blue-600 text-white ring-2 ring-blue-200",
-    badge: "bg-blue-100 text-blue-700",
-    dot: "bg-blue-500",
-  },
-};
-
 export default function StatusEndereco({ endereco }: Props) {
   const [statusAtual, setStatusAtual] = useState<Status>(
-    endereco.status || "nao_visitado"
+    normalizarStatus(endereco.status)
   );
 
   const [ultimaVisita, setUltimaVisita] = useState<string | null>(
     endereco.ultima_visita || null
   );
 
-  const mapsUrl =
-    endereco.link_google_maps ||
-    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-      `${endereco.rua}, ${endereco.numero}, ${endereco.bairro}, ${endereco.cidade}`
-    )}`;
-
-  const textoEndereco = `${endereco.rua}, ${endereco.numero}, ${endereco.bairro}, ${endereco.cidade}`;
-
-  const textoMensagem = `📍 ${endereco.rua}, ${endereco.numero}
-
-Bairro: ${endereco.bairro}
-Cidade: ${endereco.cidade}
-Status: ${statusConfig[statusAtual].label}
-${ultimaVisita ? `Última visita: ${new Date(ultimaVisita + "T00:00:00").toLocaleDateString("pt-BR")}` : ""}
-
-${mapsUrl}`;
+  const mapsUrl = obterGoogleMapsUrl(endereco);
+  const textoEndereco = obterTextoEndereco(endereco);
+  const textoMensagem = montarMensagemEndereco({
+    ...endereco,
+    status: statusAtual,
+    ultima_visita: ultimaVisita,
+  });
 
   async function alterarStatus(status: Status) {
     if (status === statusAtual) return;
 
-    const confirmar = confirm(`Alterar status para "${statusConfig[status].label}"?`);
+    const confirmar = confirm(
+      `Alterar status para "${STATUS_ENDERECO[status].label}"?`
+    );
     if (!confirmar) return;
 
     const hoje = new Date().toISOString().split("T")[0];
-
     const dados =
-      status === "visitado"
-        ? { status, ultima_visita: hoje }
-        : { status };
+      status === "visitado" ? { status, ultima_visita: hoje } : { status };
 
     setStatusAtual(status);
     if (status === "visitado") setUltimaVisita(hoje);
@@ -93,7 +60,7 @@ ${mapsUrl}`;
 
     if (error) {
       alert("Erro ao salvar status.");
-      setStatusAtual(endereco.status || "nao_visitado");
+      setStatusAtual(normalizarStatus(endereco.status));
       setUltimaVisita(endereco.ultima_visita || null);
     }
   }
@@ -124,12 +91,7 @@ ${mapsUrl}`;
     window.open(mapsUrl, "_blank");
   }
 
-  function botaoClasse(status: Status) {
-    if (statusAtual === status) return statusConfig[status].active;
-    return "border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100";
-  }
-
-  const statusInfo = statusConfig[statusAtual];
+  const statusInfo = STATUS_ENDERECO[statusAtual];
 
   return (
     <div className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
@@ -158,43 +120,42 @@ ${mapsUrl}`;
         </span>
       </div>
 
-      {ultimaVisita && (
-        <div className="mb-4 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-500">
-          <Calendar className="h-4 w-4" />
-          Última visita:{" "}
-          {new Date(ultimaVisita + "T00:00:00").toLocaleDateString("pt-BR")}
+      {(endereco.complemento || endereco.observacoes) && (
+        <div className="mb-4 space-y-2">
+          {endereco.complemento && (
+            <div className="flex gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-violet-700" />
+              <div>
+                <p className="text-xs font-semibold text-slate-500">
+                  Complemento
+                </p>
+                <p>{endereco.complemento}</p>
+              </div>
+            </div>
+          )}
+
+          {endereco.observacoes && (
+            <div className="flex gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
+              <div>
+                <p className="text-xs font-semibold text-amber-700">
+                  Observações
+                </p>
+                <p className="whitespace-pre-line">{endereco.observacoes}</p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2">
-        <button
-          onClick={() => alterarStatus("visitado")}
-          className={`rounded-xl px-3 py-3 text-xs font-bold transition ${botaoClasse("visitado")}`}
-        >
-          Visitado
-        </button>
+      {ultimaVisita && (
+        <div className="mb-4 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-500">
+          <Calendar className="h-4 w-4" />
+          Última visita: {formatarDataBR(ultimaVisita)}
+        </div>
+      )}
 
-        <button
-          onClick={() => alterarStatus("nao_atendeu")}
-          className={`rounded-xl px-3 py-3 text-xs font-bold transition ${botaoClasse("nao_atendeu")}`}
-        >
-          Não atendeu
-        </button>
-
-        <button
-          onClick={() => alterarStatus("nao_visitado")}
-          className={`rounded-xl px-3 py-3 text-xs font-bold transition ${botaoClasse("nao_visitado")}`}
-        >
-          Não visitado
-        </button>
-
-        <button
-          onClick={() => alterarStatus("novo")}
-          className={`rounded-xl px-3 py-3 text-xs font-bold transition ${botaoClasse("novo")}`}
-        >
-          Novo
-        </button>
-      </div>
+      <StatusSelector statusAtual={statusAtual} onChange={alterarStatus} />
 
       {statusAtual === "visitado" && (
         <button
@@ -206,31 +167,11 @@ ${mapsUrl}`;
         </button>
       )}
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        <button
-          onClick={abrirMaps}
-          className="flex flex-col items-center justify-center gap-1 rounded-xl border border-violet-200 bg-white px-2 py-3 text-xs font-semibold text-violet-700 hover:bg-violet-50"
-        >
-          <MapPinned size={18} />
-          Maps
-        </button>
-
-        <button
-          onClick={copiarEndereco}
-          className="flex flex-col items-center justify-center gap-1 rounded-xl border border-violet-200 bg-white px-2 py-3 text-xs font-semibold text-violet-700 hover:bg-violet-50"
-        >
-          <Copy size={18} />
-          Copiar
-        </button>
-
-        <button
-          onClick={copiarMensagem}
-          className="flex flex-col items-center justify-center gap-1 rounded-xl border border-violet-200 bg-violet-50 px-2 py-3 text-xs font-semibold text-violet-700 hover:bg-violet-100"
-        >
-          <MessageCircle size={18} />
-          Mensagem
-        </button>
-      </div>
+      <EnderecoActions
+        onMaps={abrirMaps}
+        onCopiar={copiarEndereco}
+        onMensagem={copiarMensagem}
+      />
     </div>
   );
 }

@@ -8,34 +8,14 @@ import {
   Popup,
   useMap,
 } from "react-leaflet";
-
 import L from "leaflet";
 import { Map, MapPinned, Navigation, CheckCircle } from "lucide-react";
+
+import { STATUS_ENDERECO, normalizarStatus } from "@/lib/status";
 
 type Props = {
   enderecos: any[];
 };
-
-function corStatus(status?: string) {
-  if (status === "visitado") return "#16a34a";
-  if (status === "nao_atendeu") return "#f97316";
-  if (status === "novo") return "#2563eb";
-  return "#dc2626";
-}
-
-function labelStatus(status?: string) {
-  if (status === "visitado") return "Visitado";
-  if (status === "nao_atendeu") return "Não atendeu";
-  if (status === "novo") return "Novo";
-  return "Não visitado";
-}
-
-function statusClasses(status?: string) {
-  if (status === "visitado") return "bg-green-100 text-green-700";
-  if (status === "nao_atendeu") return "bg-orange-100 text-orange-700";
-  if (status === "novo") return "bg-blue-100 text-blue-700";
-  return "bg-red-100 text-red-700";
-}
 
 function coordenadas(endereco: any): [number, number] | null {
   if (endereco.latitude && endereco.longitude) {
@@ -93,6 +73,8 @@ export default function TerritorioMap({ enderecos }: Props) {
               `${endereco.rua}, ${endereco.numero}, ${endereco.bairro}, ${endereco.cidade}`
             )}`;
 
+          const status = STATUS_ENDERECO[normalizarStatus(endereco.status)];
+
           return (
             <CircleMarker
               key={endereco.id}
@@ -101,62 +83,60 @@ export default function TerritorioMap({ enderecos }: Props) {
               pathOptions={{
                 color: "#ffffff",
                 weight: 2,
-                fillColor: corStatus(endereco.status),
+                fillColor: status.pin,
                 fillOpacity: 0.95,
               }}
             >
               <Popup>
-  <div className="w-[300px] space-y-3 text-slate-800">
-    <div>
-      <h3 className="text-lg font-bold leading-tight">
-        {endereco.rua}, {endereco.numero}
-      </h3>
+                <div className="w-[300px] space-y-3 text-slate-800">
+                  <div>
+                    <h3 className="text-lg font-bold leading-tight">
+                      {endereco.rua}, {endereco.numero}
+                    </h3>
 
-      <p className="mt-1 text-sm text-slate-600">
-        {endereco.bairro} · {endereco.cidade}
-      </p>
-    </div>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {endereco.bairro} · {endereco.cidade}
+                    </p>
+                  </div>
 
-    <div className="flex items-center gap-2 text-sm text-slate-600">
-      <Map className="h-4 w-4 text-violet-700" />
-      <span>Território:</span>
-      <span className="font-semibold text-violet-700">
-        {endereco.territorios?.nome}
-      </span>
-    </div>
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Map className="h-4 w-4 text-violet-700" />
+                    <span>Território:</span>
+                    <span className="font-semibold text-violet-700">
+                      {endereco.territorios?.nome}
+                    </span>
+                  </div>
 
-    <div className="flex items-center gap-2">
-      <CheckCircle className="h-4 w-4 text-slate-500" />
-      <span className="text-sm text-slate-600">Status:</span>
-      <span
-        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusClasses(
-          endereco.status
-        )}`}
-      >
-        {labelStatus(endereco.status)}
-      </span>
-    </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-slate-500" />
+                    <span className="text-sm text-slate-600">Status:</span>
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${status.badge}`}
+                    >
+                      {status.label}
+                    </span>
+                  </div>
 
-    <div className="grid grid-cols-2 gap-2 pt-1">
-      <a
-        href={`/territorios/${endereco.territorios?.id}`}
-        className="inline-flex items-center justify-center gap-1 rounded-lg border border-violet-700 bg-white px-3 py-2 text-sm font-semibold !text-violet-700 no-underline shadow-sm hover:bg-violet-50"
-      >
-        <MapPinned className="h-4 w-4" />
-        Abrir
-      </a>
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <a
+                      href={`/territorios/${endereco.territorios?.id}`}
+                      className="inline-flex items-center justify-center gap-1 rounded-lg border border-violet-700 bg-white px-3 py-2 text-sm font-semibold !text-violet-700 no-underline shadow-sm hover:bg-violet-50"
+                    >
+                      <MapPinned className="h-4 w-4" />
+                      Abrir
+                    </a>
 
-      <a
-        href={mapsUrl}
-        target="_blank"
-        className="inline-flex items-center justify-center gap-1 rounded-lg bg-violet-700 px-3 py-2 text-sm font-semibold !text-white no-underline shadow-sm hover:bg-violet-800"
-      >
-        <Navigation className="h-4 w-4" />
-        Maps
-      </a>
-    </div>
-  </div>
-</Popup>
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      className="inline-flex items-center justify-center gap-1 rounded-lg bg-violet-700 px-3 py-2 text-sm font-semibold !text-white no-underline shadow-sm hover:bg-violet-800"
+                    >
+                      <Navigation className="h-4 w-4" />
+                      Maps
+                    </a>
+                  </div>
+                </div>
+              </Popup>
             </CircleMarker>
           );
         })}
