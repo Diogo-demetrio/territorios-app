@@ -38,11 +38,11 @@ export default function MobileBottomNav({ congregacaoId }: Props) {
       label: "Publicadores",
       icon: Users,
     },
-    {
-      href: `/congregacoes/${congregacaoId}/configuracoes`,
-      label: "Admin",
-      icon: Settings,
-    },
+   {
+  href: "/configuracoes",
+  label: "Config.",
+  icon: Settings,
+},
   ];
 
   return (

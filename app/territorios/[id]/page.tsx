@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import NovoEnderecoForm from "@/components/enderecos/NovoEnderecoForm";
-import ListaEnderecosSelecionavel from "@/components/enderecos/ListaEnderecosSelecionavel";
+import AdminEnderecoArea from "@/components/enderecos/AdminEnderecoArea";import ListaEnderecosSelecionavel from "@/components/enderecos/ListaEnderecosSelecionavel";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import Link from "next/link";
@@ -104,12 +103,7 @@ export default async function Territorio({
           </div>
         </div>
 
-        <NovoEnderecoForm
-          territorioId={territorio.id}
-          cidade={territorio.cidade}
-          bairro={territorio.bairro}
-          territorioNome={territorio.nome}
-        />
+        <AdminEnderecoArea territorio={territorio} />
 
         <ListaEnderecosSelecionavel
           enderecos={lista}

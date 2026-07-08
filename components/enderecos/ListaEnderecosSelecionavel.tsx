@@ -2,6 +2,7 @@
 
 import { Check, CheckSquare, Copy, Send, X } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/lib/supabase";
 import StatusEndereco from "@/components/enderecos/StatusEndereco";
 import { montarMensagemEnderecos } from "@/lib/endereco";
@@ -21,6 +22,7 @@ export default function ListaEnderecosSelecionavel({
 }: Props) {
   const [modoSelecao, setModoSelecao] = useState(false);
   const [selecionados, setSelecionados] = useState<number[]>([]);
+  const { isSuporte } = useAuth();
 
   const listaSelecionada = enderecos.filter((e) => selecionados.includes(e.id));
 
@@ -70,6 +72,11 @@ export default function ListaEnderecosSelecionavel({
   }
 
   async function alterarStatusLote(status: Status) {
+    if (!isSuporte) {
+      alert("Você precisa entrar como suporte ou administrador.");
+      return;
+    }
+
     if (selecionados.length === 0) {
       alert("Selecione pelo menos um endereço.");
       return;
@@ -144,35 +151,37 @@ export default function ListaEnderecosSelecionavel({
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => alterarStatusLote("visitado")}
-                className="rounded-xl bg-green-50 py-2 text-xs font-bold text-green-700"
-              >
-                Marcar visitado
-              </button>
+            {isSuporte && (
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => alterarStatusLote("visitado")}
+                  className="rounded-xl bg-green-50 py-2 text-xs font-bold text-green-700"
+                >
+                  Marcar visitado
+                </button>
 
-              <button
-                onClick={() => alterarStatusLote("nao_atendeu")}
-                className="rounded-xl bg-orange-50 py-2 text-xs font-bold text-orange-700"
-              >
-                Não atendeu
-              </button>
+                <button
+                  onClick={() => alterarStatusLote("nao_atendeu")}
+                  className="rounded-xl bg-orange-50 py-2 text-xs font-bold text-orange-700"
+                >
+                  Não atendeu
+                </button>
 
-              <button
-                onClick={() => alterarStatusLote("nao_visitado")}
-                className="rounded-xl bg-red-50 py-2 text-xs font-bold text-red-700"
-              >
-                Não visitado
-              </button>
+                <button
+                  onClick={() => alterarStatusLote("nao_visitado")}
+                  className="rounded-xl bg-red-50 py-2 text-xs font-bold text-red-700"
+                >
+                  Não visitado
+                </button>
 
-              <button
-                onClick={() => alterarStatusLote("novo")}
-                className="rounded-xl bg-blue-50 py-2 text-xs font-bold text-blue-700"
-              >
-                Novo
-              </button>
-            </div>
+                <button
+                  onClick={() => alterarStatusLote("novo")}
+                  className="rounded-xl bg-blue-50 py-2 text-xs font-bold text-blue-700"
+                >
+                  Novo
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -192,7 +201,7 @@ export default function ListaEnderecosSelecionavel({
                 <button
                   type="button"
                   onClick={() => toggleSelecionado(endereco.id)}
-                  className={`absolute right-4 top-4 z-20 flex h-8 w-8 items-center justify-center rounded-full border transition ${
+                  className={`absolute right-4 top-14 z-10 flex h-8 w-8 items-center justify-center rounded-full border transition ${
                     selecionado
                       ? "border-violet-700 bg-violet-700 text-white"
                       : "border-slate-300 bg-white text-transparent"

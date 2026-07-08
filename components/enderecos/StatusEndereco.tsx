@@ -1,7 +1,8 @@
 "use client";
-
+import EditarEnderecoForm from "@/components/enderecos/EditarEnderecoForm";
 import { Calendar, Home, RotateCcw, Info, MessageSquare } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/lib/supabase";
 import {
   STATUS_ENDERECO,
@@ -29,6 +30,7 @@ export default function StatusEndereco({ endereco }: Props) {
   const [ultimaVisita, setUltimaVisita] = useState<string | null>(
     endereco.ultima_visita || null
   );
+  const { isSuporte } = useAuth();
 
   const mapsUrl = obterGoogleMapsUrl(endereco);
   const textoEndereco = obterTextoEndereco(endereco);
@@ -155,7 +157,16 @@ export default function StatusEndereco({ endereco }: Props) {
         </div>
       )}
 
-      <StatusSelector statusAtual={statusAtual} onChange={alterarStatus} />
+      {isSuporte ? (
+  <StatusSelector
+    statusAtual={statusAtual}
+    onChange={alterarStatus}
+  />
+) : (
+  <div className="mt-3 rounded-xl bg-slate-50 px-4 py-3 text-center text-sm font-medium text-slate-500">
+    Status: <span className="font-semibold">{statusInfo.label}</span>
+  </div>
+)}
 
       {statusAtual === "visitado" && (
         <button
@@ -166,7 +177,7 @@ export default function StatusEndereco({ endereco }: Props) {
           Desfazer visita
         </button>
       )}
-
+{isSuporte && <EditarEnderecoForm endereco={endereco} />}
       <EnderecoActions
         onMaps={abrirMaps}
         onCopiar={copiarEndereco}
