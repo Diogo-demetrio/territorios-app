@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Lock, LogOut, ShieldCheck, UserCog } from "lucide-react";
 import LoginModal from "@/components/auth/LoginModal";
 import { useAuth } from "@/components/auth/AuthProvider";
+import UsuariosAdmin from "@/components/auth/UsuariosAdmin";
 
 export default function ConfiguracoesPage() {
   const [loginAberto, setLoginAberto] = useState(false);
@@ -69,22 +70,8 @@ export default function ConfiguracoesPage() {
           )}
         </div>
 
-        {isAdmin && (
-          <div className="mt-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-            <div className="flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-100 text-violet-700">
-                <UserCog className="h-5 w-5" />
-              </div>
+       {isAdmin && <UsuariosAdmin />}
 
-              <div>
-                <h2 className="font-bold text-slate-900">Usuários</h2>
-                <p className="text-sm text-slate-500">
-                  Em breve: criar suporte e administradores.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {isSuporte && (
           <div className="mt-4 rounded-3xl bg-white p-4 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200">
