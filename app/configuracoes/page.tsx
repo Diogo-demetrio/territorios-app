@@ -5,6 +5,7 @@ import { Lock, LogOut, ShieldCheck, UserCog } from "lucide-react";
 import LoginModal from "@/components/auth/LoginModal";
 import { useAuth } from "@/components/auth/AuthProvider";
 import UsuariosAdmin from "@/components/auth/UsuariosAdmin";
+import CidadesBairrosAdmin from "@/components/configuracoes/CidadesBairrosAdmin";
 
 export default function ConfiguracoesPage() {
   const [loginAberto, setLoginAberto] = useState(false);
@@ -27,7 +28,7 @@ export default function ConfiguracoesPage() {
 
                 <div>
                   <h2 className="font-bold text-slate-900">
-                    Área administrativa
+                    Acesso de suporte/admin
                   </h2>
                   <p className="text-sm text-slate-500">
                     Entre para liberar funções de suporte e administração.
@@ -39,7 +40,7 @@ export default function ConfiguracoesPage() {
                 onClick={() => setLoginAberto(true)}
                 className="w-full rounded-xl bg-violet-700 py-3 text-sm font-semibold text-white"
               >
-                Entrar como administrador
+                Entrar como suporte/admin
               </button>
             </>
           ) : (
@@ -71,6 +72,7 @@ export default function ConfiguracoesPage() {
         </div>
 
        {isAdmin && <UsuariosAdmin />}
+       {isAdmin && <CidadesBairrosAdmin />}
 
 
         {isSuporte && (

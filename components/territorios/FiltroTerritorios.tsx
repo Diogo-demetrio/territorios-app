@@ -1,86 +1,156 @@
 "use client";
 
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { MapPin, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
+type TerritorioResumo = {
+  id: number;
+  nome: string;
+  numero: number | null;
+  congregacao_id: number;
+  cidade_referencia: string | null;
+  bairro_referencia: string | null;
+  cidades_presentes: string | null;
+  bairros_presentes: string | null;
+  total_cidades: number;
+  total_bairros: number;
+  total_enderecos: number;
+  total_visitados: number;
+  total_nao_visitados: number;
+  total_nao_atendeu: number;
+  total_novos: number;
+  ativo: boolean;
+  status_designacao: string | null;
+};
+
 type Props = {
-  territorios: any[];
+  territorios: TerritorioResumo[];
 };
 
 export function FiltroTerritorios({ territorios }: Props) {
   const [busca, setBusca] = useState("");
 
-  const agrupados = useMemo(() => {
-    const filtrados = territorios.filter((t) =>
-      `${t.nome} ${t.bairro} ${t.cidade}`.toLowerCase().includes(busca.toLowerCase())
-    );
+  const territoriosFiltrados = useMemo(() => {
+    const textoBusca = busca.trim().toLowerCase();
 
-    return filtrados.reduce((acc: any, territorio: any) => {
-      const bairro = territorio.bairro || "Sem bairro";
-      if (!acc[bairro]) acc[bairro] = [];
-      acc[bairro].push(territorio);
-      return acc;
-    }, {});
+    if (!textoBusca) return territorios;
+
+    return territorios.filter((territorio) => {
+      const textoCompleto = [
+        territorio.nome,
+        territorio.cidade_referencia,
+        territorio.bairro_referencia,
+        territorio.cidades_presentes,
+        territorio.bairros_presentes,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return textoCompleto.includes(textoBusca);
+    });
   }, [busca, territorios]);
+
+  const agrupadosPorCidade = useMemo(() => {
+    return territoriosFiltrados.reduce<
+      Record<string, TerritorioResumo[]>
+    >((grupos, territorio) => {
+      const cidade =
+        territorio.cidade_referencia ||
+        territorio.cidades_presentes ||
+        "Sem cidade definida";
+
+      if (!grupos[cidade]) {
+        grupos[cidade] = [];
+      }
+
+      grupos[cidade].push(territorio);
+      return grupos;
+    }, {});
+  }, [territoriosFiltrados]);
 
   return (
     <>
       <div className="mb-4 flex items-center gap-2 rounded-xl bg-white px-3 py-3 shadow-sm ring-1 ring-slate-200">
         <Search className="h-4 w-4 text-slate-500" />
+
         <input
           value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          placeholder="Buscar por nome, bairro ou cidade"
+          onChange={(event) => setBusca(event.target.value)}
+          placeholder="Buscar território, cidade ou bairro"
           className="flex-1 bg-transparent text-sm outline-none placeholder:text-slate-500"
         />
       </div>
 
-      {Object.entries(agrupados).map(([bairro, lista]: any) => (
-        <section key={bairro} className="mb-6">
-          <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            {bairro}
+      {territoriosFiltrados.length === 0 && (
+        <div className="rounded-2xl bg-white p-4 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-200">
+          Nenhum território encontrado.
+        </div>
+      )}
+
+      {Object.entries(agrupadosPorCidade).map(([cidade, lista]) => (
+        <section key={cidade} className="mb-6">
+          <h2 className="mb-2 flex items-center gap-1.5 px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <MapPin className="h-3.5 w-3.5" />
+            {cidade}
           </h2>
 
           <div className="space-y-3">
-            {lista.map((territorio: any) => {
-              const enderecos = territorio.enderecos ?? [];
-              const total = enderecos.length;
+            {lista.map((territorio) => (
+              <Link
+                key={territorio.id}
+                href={`/territorios/${territorio.id}`}
+                className="block rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:ring-violet-300"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold text-slate-900">
+                      {territorio.nome}
+                    </h3>
 
-              const visitado = enderecos.filter((e: any) => e.status === "visitado").length;
-              const naoVisitado = enderecos.filter((e: any) => e.status === "nao_visitado" || !e.status).length;
-              const naoAtendeu = enderecos.filter((e: any) => e.status === "nao_atendeu").length;
-              const novo = enderecos.filter((e: any) => e.status === "novo").length;
+                    <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                      {territorio.bairros_presentes ||
+                        territorio.bairro_referencia ||
+                        "Nenhum bairro informado"}
+                    </p>
 
-              return (
-                <Link
-                  key={territorio.id}
-                  href={`/territorios/${territorio.id}`}
-                  className="block rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:ring-violet-300"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-sm font-semibold">{territorio.nome}</h3>
-                      <p className="mt-0.5 text-xs text-slate-500">
-                        {territorio.cidade} · {territorio.bairro}
+                    {territorio.total_bairros > 1 && (
+                      <p className="mt-1 text-[11px] font-medium text-violet-700">
+                        {territorio.total_bairros} bairros neste território
                       </p>
-                    </div>
-
-                    <span className="rounded-lg bg-violet-100 px-2 py-1 text-xs font-semibold text-violet-700">
-                      {total} end.
-                    </span>
+                    )}
                   </div>
 
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    <StatusBadge status="visitado" count={visitado} />
-                    <StatusBadge status="nao_visitado" count={naoVisitado} />
-                    <StatusBadge status="nao_atendeu" count={naoAtendeu} />
-                    <StatusBadge status="novo" count={novo} />
-                  </div>
-                </Link>
-              );
-            })}
+                  <span className="shrink-0 rounded-lg bg-violet-100 px-2 py-1 text-xs font-semibold text-violet-700">
+                    {territorio.total_enderecos} end.
+                  </span>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  <StatusBadge
+                    status="visitado"
+                    count={territorio.total_visitados}
+                  />
+
+                  <StatusBadge
+                    status="nao_visitado"
+                    count={territorio.total_nao_visitados}
+                  />
+
+                  <StatusBadge
+                    status="nao_atendeu"
+                    count={territorio.total_nao_atendeu}
+                  />
+
+                  <StatusBadge
+                    status="novo"
+                    count={territorio.total_novos}
+                  />
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
       ))}
