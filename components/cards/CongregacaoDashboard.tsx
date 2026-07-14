@@ -19,11 +19,36 @@ type Props = {
 };
 
 const itens = [
-  { titulo: "Territórios", descricao: "Lista completa", icone: Map, rota: "territorios" },
-  { titulo: "Mapa", descricao: "Mapa da congregação", icone: MapPin, rota: "mapa" },
-  { titulo: "Publicadores", descricao: "Cadastro", icone: Users, rota: "publicadores" },
-  { titulo: "Designações", descricao: "Designar territórios", icone: ClipboardList, rota: "designacoes" },
-  { titulo: "Configurações", descricao: "Somente administrador", icone: Settings, rota: "configuracoes" },
+  {
+    titulo: "Territórios",
+    descricao: "Lista completa",
+    icone: Map,
+    rota: "territorios",
+  },
+  {
+    titulo: "Mapa",
+    descricao: "Mapa da congregação",
+    icone: MapPin,
+    rota: "mapa",
+  },
+  {
+    titulo: "Publicadores",
+    descricao: "Cadastro",
+    icone: Users,
+    rota: "publicadores",
+  },
+  {
+    titulo: "Designações",
+    descricao: "Designar territórios",
+    icone: ClipboardList,
+    rota: "designacoes",
+  },
+  {
+    titulo: "Configurações",
+    descricao: "Somente administrador",
+    icone: Settings,
+    rota: "configuracoes",
+  },
 ];
 
 export default function CongregacaoDashboard({
@@ -56,10 +81,15 @@ export default function CongregacaoDashboard({
         {itens.map((item) => {
           const Icon = item.icone;
 
+          const href =
+            item.rota === "configuracoes"
+              ? `/configuracoes?congregacao=${congregacaoId}`
+              : `/congregacoes/${congregacaoId}/${item.rota}`;
+
           return (
             <Link
               key={item.titulo}
-              href={`/congregacoes/${congregacaoId}/${item.rota}`}
+              href={href}
               className="group rounded-3xl border border-slate-100 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="mb-3 flex items-start justify-between">
@@ -72,7 +102,9 @@ export default function CongregacaoDashboard({
 
               <h2 className="text-sm font-semibold">{item.titulo}</h2>
 
-              <p className="mt-1 text-xs text-gray-500">{item.descricao}</p>
+              <p className="mt-1 text-xs text-gray-500">
+                {item.descricao}
+              </p>
             </Link>
           );
         })}
@@ -81,7 +113,13 @@ export default function CongregacaoDashboard({
   );
 }
 
-function CardNumero({ numero, titulo }: { numero: number; titulo: string }) {
+function CardNumero({
+  numero,
+  titulo,
+}: {
+  numero: number;
+  titulo: string;
+}) {
   return (
     <div className="rounded-2xl bg-white/10 py-3 text-center">
       <div className="text-2xl font-bold leading-none">{numero}</div>

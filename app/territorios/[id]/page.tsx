@@ -67,18 +67,23 @@ export default async function Territorio({
     .single();
 
   const { data: enderecos, error: erroEnderecos } = await supabase
-    .from("enderecos")
-    .select(`
-      *,
-      cidades (
-        id,
-        nome
-      ),
-      bairros (
-        id,
-        nome
-      )
-    `)
+  .from("enderecos")
+  .select(`
+    *,
+    cidades (
+      id,
+      nome
+    ),
+    bairros (
+      id,
+      nome
+    ),
+    territorios (
+      id,
+      nome,
+      congregacao_id
+    )
+  `)
     .eq("territorio_id", id)
     .order("numero_sequencial", { ascending: true, nullsFirst: false })
     .order("id");
