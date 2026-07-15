@@ -9,6 +9,7 @@ import {
   Search,
 } from "lucide-react";
 import {
+  Suspense,
   useEffect,
   useMemo,
   useState,
@@ -32,7 +33,7 @@ type Cidade = {
   nome: string;
 };
 
-export default function TerritoriosAdminPage() {
+function TerritoriosAdminContent() {
   const searchParams = useSearchParams();
 
   const congregacaoQuery =
@@ -80,9 +81,7 @@ export default function TerritoriosAdminPage() {
   const [
     territorioSelecionado,
     setTerritorioSelecionado,
-  ] = useState<TerritorioAdmin | null>(
-    null
-  );
+  ] = useState<TerritorioAdmin | null>(null);
 
   const rotaVoltar = congregacaoQuery
     ? `/configuracoes?congregacao=${congregacaoQuery}`
@@ -132,9 +131,7 @@ export default function TerritoriosAdminPage() {
     setCarregandoDados(false);
 
     if (resultadoTerritorios.error) {
-      console.error(
-        resultadoTerritorios.error
-      );
+      console.error(resultadoTerritorios.error);
 
       alert(
         "Não foi possível carregar os territórios."
@@ -144,9 +141,7 @@ export default function TerritoriosAdminPage() {
     }
 
     if (resultadoCongregacoes.error) {
-      console.error(
-        resultadoCongregacoes.error
-      );
+      console.error(resultadoCongregacoes.error);
 
       alert(
         "Não foi possível carregar as congregações."
@@ -156,9 +151,7 @@ export default function TerritoriosAdminPage() {
     }
 
     if (resultadoCidades.error) {
-      console.error(
-        resultadoCidades.error
-      );
+      console.error(resultadoCidades.error);
 
       alert(
         "Não foi possível carregar as cidades."
@@ -281,6 +274,7 @@ export default function TerritoriosAdminPage() {
           <Link
             href={rotaVoltar}
             className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-slate-700 shadow-sm ring-1 ring-slate-200"
+            aria-label="Voltar"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -405,8 +399,8 @@ export default function TerritoriosAdminPage() {
               </label>
 
               <p className="text-xs text-slate-500">
-                {territoriosFiltrados.length}{" "}
-                território(s) encontrado(s).
+                {territoriosFiltrados.length} território(s)
+                encontrado(s).
               </p>
             </section>
 
@@ -416,13 +410,9 @@ export default function TerritoriosAdminPage() {
               </div>
             ) : (
               <TerritorioList
-                territorios={
-                  territoriosFiltrados
-                }
+                territorios={territoriosFiltrados}
                 congregacoes={congregacoes}
-                onEditar={
-                  editarTerritorio
-                }
+                onEditar={editarTerritorio}
               />
             )}
           </>
@@ -442,5 +432,21 @@ export default function TerritoriosAdminPage() {
         aoSalvar={carregarDados}
       />
     </main>
+  );
+}
+
+export default function TerritoriosAdminPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-slate-100 p-4">
+          <div className="mx-auto max-w-3xl rounded-2xl bg-white p-4 text-sm text-slate-500">
+            Carregando territórios...
+          </div>
+        </main>
+      }
+    >
+      <TerritoriosAdminContent />
+    </Suspense>
   );
 }

@@ -7,14 +7,14 @@ import {
   Plus,
   RefreshCw,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/auth/AuthProvider";
 import CidadeList from "@/components/admin/cidades/CidadeList";
 import type { CidadeResumo } from "@/components/admin/cidades/CidadeCard";
 
-export default function CidadesPage() {
+function CidadesContent() {
   const searchParams = useSearchParams();
   const congregacaoId = searchParams.get("congregacao");
 
@@ -135,5 +135,21 @@ export default function CidadesPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function CidadesPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-slate-100 p-4">
+          <div className="mx-auto max-w-3xl rounded-2xl bg-white p-4 text-sm text-slate-500">
+            Carregando cidades...
+          </div>
+        </main>
+      }
+    >
+      <CidadesContent />
+    </Suspense>
   );
 }

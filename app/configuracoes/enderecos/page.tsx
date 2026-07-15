@@ -46,7 +46,8 @@ function EnderecosContent() {
           </h2>
 
           <p className="mt-2 text-sm text-slate-600">
-            O cadastro e a edição de endereços já estão disponíveis dentro de cada território.
+            O cadastro e a edição de endereços já estão disponíveis
+            dentro de cada território.
           </p>
         </div>
       </div>
