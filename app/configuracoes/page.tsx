@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import {
   ArrowLeft,
   Building2,
@@ -71,7 +71,7 @@ const modulos = [
   },
 ];
 
-export default function ConfiguracoesPage() {
+function ConfiguracoesContent() {
   const [loginAberto, setLoginAberto] = useState(false);
 
   const searchParams = useSearchParams();
@@ -215,5 +215,21 @@ export default function ConfiguracoesPage() {
         fechar={() => setLoginAberto(false)}
       />
     </main>
+  );
+}
+
+export default function ConfiguracoesPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-slate-100 p-4">
+          <div className="mx-auto max-w-3xl rounded-2xl bg-white p-4 text-sm text-slate-500">
+            Carregando configurações...
+          </div>
+        </main>
+      }
+    >
+      <ConfiguracoesContent />
+    </Suspense>
   );
 }
