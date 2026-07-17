@@ -1,313 +1,422 @@
 "use client";
 
-import { Edit, Plus, RefreshCw, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  Plus,
+  RefreshCw,
+  Search,
+  Users,
+} from "lucide-react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import { supabase } from "@/lib/supabase";
 
-type Papel = "admin" | "suporte";
+import {
+  atualizarUsuario,
+  listarUsuarios,
+} from "@/components/auth/usuarios/UsuarioApi";
 
-type Usuario = {
-  id: number;
-  nome: string;
-  nome_usuario: string;
-  papel: Papel;
-  ativo: boolean;
-};
+import UsuarioCard from "@/components/auth/usuarios/UsuarioCard";
+import UsuarioDialog from "@/components/auth/usuarios/UsuarioDialog";
+import ConviteUsuarioDialog from "@/components/auth/usuarios/ConviteUsuarioDialog";
+
+import type {
+  CongregacaoUsuario,
+  PermissoesUsuarios,
+  ResultadoConvite,
+  UsuarioAdmin,
+} from "@/components/auth/usuarios/types";
 
 export default function UsuariosAdmin() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [carregando, setCarregando] = useState(false);
-  const [modalAberto, setModalAberto] = useState(false);
-  const [usuarioEditando, setUsuarioEditando] = useState<Usuario | null>(null);
+  const [usuarios, setUsuarios] =
+    useState<UsuarioAdmin[]>([]);
 
-  const [nome, setNome] = useState("");
-  const [nomeUsuario, setNomeUsuario] = useState("");
-  const [senha, setSenha] = useState("");
-  const [papel, setPapel] = useState<Papel>("suporte");
-  const [salvando, setSalvando] = useState(false);
+  const [congregacoes, setCongregacoes] =
+    useState<CongregacaoUsuario[]>([]);
 
-  async function carregarUsuarios() {
+  const [permissoes, setPermissoes] =
+    useState<PermissoesUsuarios | null>(
+      null
+    );
+
+  const [busca, setBusca] =
+    useState("");
+
+  const [
+    mostrarInativos,
+    setMostrarInativos,
+  ] = useState(true);
+
+  const [carregando, setCarregando] =
+    useState(true);
+
+  const [
+    atualizandoUsuarioId,
+    setAtualizandoUsuarioId,
+  ] = useState<number | null>(null);
+
+  const [
+    dialogAberto,
+    setDialogAberto,
+  ] = useState(false);
+
+  const [
+    usuarioSelecionado,
+    setUsuarioSelecionado,
+  ] = useState<UsuarioAdmin | null>(
+    null
+  );
+
+  const [
+    resultadoConvite,
+    setResultadoConvite,
+  ] = useState<ResultadoConvite | null>(
+    null
+  );
+
+  async function carregarDados() {
     setCarregando(true);
 
-    const { data, error } = await supabase
-      .from("usuarios_app")
-      .select("id, nome, nome_usuario, papel, ativo")
-      .order("nome");
+    try {
+      const [
+        respostaUsuarios,
+        respostaCongregacoes,
+      ] = await Promise.all([
+        listarUsuarios(),
 
-    setCarregando(false);
+        supabase
+          .from("congregacoes")
+          .select("id, nome")
+          .eq("ativa", true)
+          .order("nome"),
+      ]);
 
-    if (error) {
-      alert("Erro ao carregar usuários.");
-      return;
+      if (
+        respostaCongregacoes.error
+      ) {
+        throw new Error(
+          "Não foi possível carregar as congregações."
+        );
+      }
+
+      setUsuarios(
+        respostaUsuarios.usuarios
+      );
+
+      setPermissoes(
+        respostaUsuarios.solicitante
+      );
+
+      setCongregacoes(
+        (respostaCongregacoes.data ??
+          []) as CongregacaoUsuario[]
+      );
+    } catch (erro) {
+      console.error(erro);
+
+      alert(
+        erro instanceof Error
+          ? erro.message
+          : "Não foi possível carregar os usuários."
+      );
+    } finally {
+      setCarregando(false);
     }
-
-    setUsuarios((data ?? []) as Usuario[]);
   }
 
   useEffect(() => {
-    carregarUsuarios();
+    carregarDados();
   }, []);
 
-  function abrirNovoUsuario() {
-    setUsuarioEditando(null);
-    setNome("");
-    setNomeUsuario("");
-    setSenha("");
-    setPapel("suporte");
-    setModalAberto(true);
-  }
+  const usuariosFiltrados =
+    useMemo(() => {
+      const texto = busca
+        .trim()
+        .toLowerCase();
 
-  function abrirEditarUsuario(usuario: Usuario) {
-    setUsuarioEditando(usuario);
-    setNome(usuario.nome);
-    setNomeUsuario(usuario.nome_usuario);
-    setSenha("");
-    setPapel(usuario.papel);
-    setModalAberto(true);
-  }
+      return usuarios.filter(
+        (usuario) => {
+          if (
+            !mostrarInativos &&
+            !usuario.ativo
+          ) {
+            return false;
+          }
 
-  async function salvarUsuario() {
-    if (!nome.trim()) return alert("Informe o nome.");
-    if (!nomeUsuario.trim()) return alert("Informe o usuário.");
+          if (!texto) {
+            return true;
+          }
 
-    setSalvando(true);
+          const congregacao =
+            Array.isArray(
+              usuario.congregacoes
+            )
+              ? usuario
+                  .congregacoes[0]
+                  ?.nome ?? ""
+              : usuario
+                  .congregacoes
+                  ?.nome ?? "";
 
-    if (usuarioEditando) {
-      const dados: any = {
-        nome: nome.trim(),
-        nome_usuario: nomeUsuario.trim().toLowerCase(),
-        papel,
-        perfil: papel,
-      };
-
-      if (senha.trim()) {
-        const { error: senhaError } = await supabase.rpc("alterar_senha_usuario_app", {
-          p_usuario_id: usuarioEditando.id,
-          p_senha: senha,
-        });
-
-        if (senhaError) {
-          setSalvando(false);
-          alert("Erro ao alterar senha.");
-          return;
+          return [
+            usuario.nome,
+            usuario.email,
+            usuario.nome_usuario,
+            usuario.papel,
+            congregacao,
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase()
+            .includes(texto);
         }
-      }
+      );
+    }, [
+      usuarios,
+      busca,
+      mostrarInativos,
+    ]);
 
-      const { error } = await supabase
-        .from("usuarios_app")
-        .update(dados)
-        .eq("id", usuarioEditando.id);
+  function abrirNovoUsuario() {
+    setUsuarioSelecionado(null);
+    setDialogAberto(true);
+  }
 
-      setSalvando(false);
+  function abrirEditarUsuario(
+    usuario: UsuarioAdmin
+  ) {
+    setUsuarioSelecionado(usuario);
+    setDialogAberto(true);
+  }
 
-      if (error) {
-        alert("Erro ao editar usuário.");
-        return;
-      }
-    } else {
-      if (!senha.trim()) {
-        setSalvando(false);
-        return alert("Informe a senha.");
-      }
+  function fecharDialog() {
+    setDialogAberto(false);
+    setUsuarioSelecionado(null);
+  }
 
-      const { error } = await supabase.rpc("criar_usuario_app", {
-        p_congregacao_id: 2,
-        p_nome: nome.trim(),
-        p_nome_usuario: nomeUsuario.trim(),
-        p_senha: senha,
-        p_papel: papel,
-      });
-
-      setSalvando(false);
-
-      if (error) {
-        alert("Erro ao criar usuário.");
-        return;
-      }
+  function podeEditarUsuario(
+    usuario: UsuarioAdmin
+  ) {
+    if (!permissoes) {
+      return false;
     }
 
-    setModalAberto(false);
-    setUsuarioEditando(null);
-    setNome("");
-    setNomeUsuario("");
-    setSenha("");
-    setPapel("suporte");
-    carregarUsuarios();
+    if (
+      permissoes.papel ===
+      "superadmin"
+    ) {
+      return true;
+    }
+
+    return (
+      permissoes.papel === "admin" &&
+      usuario.papel === "suporte" &&
+      usuario.congregacao_id ===
+        permissoes.congregacaoId
+    );
   }
 
-  async function alternarAtivo(usuario: Usuario) {
-    const confirmar = confirm(
-      `${usuario.ativo ? "Desativar" : "Ativar"} o usuário ${usuario.nome}?`
+  async function alternarAtivo(
+    usuario: UsuarioAdmin
+  ) {
+    const acao = usuario.ativo
+      ? "desativar"
+      : "ativar";
+
+    const confirmou = confirm(
+      `Deseja ${acao} o usuário "${usuario.nome}"?`
     );
 
-    if (!confirmar) return;
-
-    const { error } = await supabase
-      .from("usuarios_app")
-      .update({ ativo: !usuario.ativo })
-      .eq("id", usuario.id);
-
-    if (error) {
-      alert("Erro ao alterar usuário.");
+    if (!confirmou) {
       return;
     }
 
-    carregarUsuarios();
+    setAtualizandoUsuarioId(
+      usuario.id
+    );
+
+    try {
+      await atualizarUsuario({
+        usuarioId: usuario.id,
+        ativo: !usuario.ativo,
+      });
+
+      await carregarDados();
+    } catch (erro) {
+      console.error(erro);
+
+      alert(
+        erro instanceof Error
+          ? erro.message
+          : "Não foi possível alterar o usuário."
+      );
+    } finally {
+      setAtualizandoUsuarioId(
+        null
+      );
+    }
+  }
+
+  function exibirConvite(
+    resultado: ResultadoConvite
+  ) {
+    setResultadoConvite(
+      resultado
+    );
+  }
+
+  if (carregando) {
+    return (
+      <div className="mt-4 rounded-3xl bg-white p-4 text-sm text-slate-500 shadow-sm ring-1 ring-slate-200">
+        Carregando usuários...
+      </div>
+    );
+  }
+
+  if (!permissoes) {
+    return (
+      <div className="mt-4 rounded-3xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        Não foi possível validar suas permissões.
+      </div>
+    );
   }
 
   return (
-    <div className="mt-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div>
-          <h2 className="font-bold text-slate-900">Usuários</h2>
-          <p className="text-sm text-slate-500">
-            Administradores e suportes do aplicativo.
-          </p>
+    <>
+      <section className="mt-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-violet-100 text-violet-700">
+              <Users className="h-5 w-5" />
+            </div>
+
+            <div>
+              <h2 className="font-bold text-slate-900">
+                Usuários
+              </h2>
+
+              <p className="text-sm text-slate-500">
+                Administradores e suportes do aplicativo.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={carregarDados}
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-slate-200 bg-white text-slate-600"
+            aria-label="Atualizar usuários"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </button>
         </div>
 
         <button
-          onClick={carregarUsuarios}
-          className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600"
+          type="button"
+          onClick={abrirNovoUsuario}
+          className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-700 py-3 text-sm font-semibold text-white"
         >
-          <RefreshCw className="h-4 w-4" />
+          <Plus className="h-4 w-4" />
+          Novo usuário
         </button>
-      </div>
 
-      <button
-        onClick={abrirNovoUsuario}
-        className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-700 py-3 text-sm font-semibold text-white"
-      >
-        <Plus className="h-4 w-4" />
-        Novo usuário
-      </button>
-
-      <div className="space-y-2">
-        {carregando && (
-          <p className="text-sm text-slate-500">Carregando usuários...</p>
-        )}
-
-        {!carregando &&
-          usuarios.map((u) => (
-            <div
-              key={u.id}
-              className="rounded-2xl border border-slate-200 bg-slate-50 p-3"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-semibold text-slate-900">{u.nome}</h3>
-                  <p className="text-sm text-slate-500">@{u.nome_usuario}</p>
-                </div>
-
-                <span
-                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                    u.papel === "admin"
-                      ? "bg-violet-100 text-violet-700"
-                      : "bg-blue-100 text-blue-700"
-                  }`}
-                >
-                  {u.papel}
-                </span>
-              </div>
-
-              <p
-                className={`mt-2 text-xs font-semibold ${
-                  u.ativo ? "text-green-700" : "text-red-700"
-                }`}
-              >
-                {u.ativo ? "● Ativo" : "○ Inativo"}
-              </p>
-
-              <div className="mt-3 flex gap-2">
-                <button
-                  onClick={() => abrirEditarUsuario(u)}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700"
-                >
-                  <Edit className="h-4 w-4" />
-                  Editar
-                </button>
-
-                <button
-                  onClick={() => alternarAtivo(u)}
-                  className={`flex-1 rounded-xl px-3 py-2 text-xs font-semibold ${
-                    u.ativo
-                      ? "bg-red-50 text-red-700"
-                      : "bg-green-50 text-green-700"
-                  }`}
-                >
-                  {u.ativo ? "Desativar" : "Ativar"}
-                </button>
-              </div>
-            </div>
-          ))}
-      </div>
-
-      {modalAberto && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900">
-                {usuarioEditando ? "Editar usuário" : "Novo usuário"}
-              </h2>
-
-              <button onClick={() => setModalAberto(false)}>
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+        <div className="mb-4 space-y-3">
+          <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-3">
+            <Search className="h-4 w-4 shrink-0 text-slate-400" />
 
             <input
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              placeholder="Nome"
-              className="mb-3 w-full rounded-xl border border-slate-200 p-3 text-sm"
-            />
-
-            <input
-              value={nomeUsuario}
-              onChange={(e) => setNomeUsuario(e.target.value)}
-              placeholder="Usuário"
-              className="mb-3 w-full rounded-xl border border-slate-200 p-3 text-sm"
-            />
-
-            <input
-              type="password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              placeholder={
-                usuarioEditando
-                  ? "Nova senha (deixe vazio para manter)"
-                  : "Senha"
+              value={busca}
+              onChange={(event) =>
+                setBusca(
+                  event.target.value
+                )
               }
-              className="mb-3 w-full rounded-xl border border-slate-200 p-3 text-sm"
+              placeholder="Buscar por nome, e-mail ou congregação"
+              className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+            />
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-slate-600">
+            <input
+              type="checkbox"
+              checked={mostrarInativos}
+              onChange={(event) =>
+                setMostrarInativos(
+                  event.target.checked
+                )
+              }
+              className="h-4 w-4"
             />
 
-            <select
-              value={papel}
-              onChange={(e) => setPapel(e.target.value as Papel)}
-              className="mb-4 w-full rounded-xl border border-slate-200 p-3 text-sm"
-            >
-              <option value="suporte">Suporte</option>
-              <option value="admin">Administrador</option>
-            </select>
+            Mostrar usuários inativos
+          </label>
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => setModalAberto(false)}
-                className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-600"
-              >
-                Cancelar
-              </button>
-
-              <button
-                onClick={salvarUsuario}
-                disabled={salvando}
-                className="flex-1 rounded-xl bg-violet-700 py-3 text-sm font-semibold text-white disabled:opacity-60"
-              >
-                {salvando ? "Salvando..." : "Salvar"}
-              </button>
-            </div>
-          </div>
+          <p className="text-xs text-slate-500">
+            {usuariosFiltrados.length} usuário(s) encontrado(s).
+          </p>
         </div>
-      )}
-    </div>
+
+        {usuariosFiltrados.length ===
+        0 ? (
+          <div className="rounded-2xl bg-slate-50 p-4 text-center text-sm text-slate-500">
+            Nenhum usuário encontrado.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {usuariosFiltrados.map(
+              (usuario) => (
+                <UsuarioCard
+                  key={usuario.id}
+                  usuario={usuario}
+                  podeEditar={podeEditarUsuario(
+                    usuario
+                  )}
+                  alterandoAtivo={
+                    atualizandoUsuarioId ===
+                    usuario.id
+                  }
+                  onEditar={
+                    abrirEditarUsuario
+                  }
+                  onAlternarAtivo={
+                    alternarAtivo
+                  }
+                />
+              )
+            )}
+          </div>
+        )}
+      </section>
+
+      <UsuarioDialog
+        aberto={dialogAberto}
+        usuario={usuarioSelecionado}
+        congregacoes={congregacoes}
+        papelSolicitante={
+          permissoes.papel
+        }
+        congregacaoSolicitanteId={
+          permissoes.congregacaoId
+        }
+        fechar={fecharDialog}
+        aoSalvar={carregarDados}
+        aoCriarConvite={
+          exibirConvite
+        }
+      />
+
+      <ConviteUsuarioDialog
+        aberto={Boolean(
+          resultadoConvite
+        )}
+        resultado={resultadoConvite}
+        fechar={() =>
+          setResultadoConvite(null)
+        }
+      />
+    </>
   );
 }

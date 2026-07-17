@@ -5,21 +5,33 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export const runtime = "nodejs";
 
-type PapelUsuario = "admin" | "suporte";
+type PapelUsuario =
+  | "superadmin"
+  | "admin"
+  | "suporte";
 
 type CorpoCriacaoUsuario = {
   usuarioAppId?: number | null;
   nome?: string;
   email?: string;
   telefone?: string | null;
-  papel?: PapelUsuario;
+  papel?: "admin" | "suporte";
+  congregacaoId?: number;
+};
+
+type CorpoAtualizacaoUsuario = {
+  usuarioId?: number;
+  ativo?: boolean;
+  nome?: string;
+  telefone?: string | null;
+  papel?: "admin" | "suporte";
   congregacaoId?: number;
 };
 
 type PerfilSolicitante = {
   id: number;
   nome: string;
-  papel: "superadmin" | "admin" | "suporte";
+  papel: PapelUsuario;
   congregacao_id: number | null;
   ativo: boolean;
   auth_user_id: string | null;
@@ -60,36 +72,56 @@ function obterToken(request: NextRequest) {
 }
 
 function emailValido(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+    email
+  );
 }
 
-function gerarSenhaTemporaria(tamanho = 12) {
-  const maiusculas = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-  const minusculas = "abcdefghijkmnopqrstuvwxyz";
+function gerarSenhaTemporaria(
+  tamanho = 12
+) {
+  const maiusculas =
+    "ABCDEFGHJKLMNPQRSTUVWXYZ";
+
+  const minusculas =
+    "abcdefghijkmnopqrstuvwxyz";
+
   const numeros = "23456789";
   const simbolos = "!@#$%&*?";
+
   const todos =
-    maiusculas + minusculas + numeros + simbolos;
+    maiusculas +
+    minusculas +
+    numeros +
+    simbolos;
 
   const caracteres = [
-    maiusculas[randomInt(maiusculas.length)],
-    minusculas[randomInt(minusculas.length)],
+    maiusculas[
+      randomInt(maiusculas.length)
+    ],
+    minusculas[
+      randomInt(minusculas.length)
+    ],
     numeros[randomInt(numeros.length)],
     simbolos[randomInt(simbolos.length)],
   ];
 
-  while (caracteres.length < tamanho) {
+  while (
+    caracteres.length < tamanho
+  ) {
     caracteres.push(
       todos[randomInt(todos.length)]
     );
   }
 
   for (
-    let indice = caracteres.length - 1;
+    let indice =
+      caracteres.length - 1;
     indice > 0;
     indice -= 1
   ) {
-    const outroIndice = randomInt(indice + 1);
+    const outroIndice =
+      randomInt(indice + 1);
 
     [
       caracteres[indice],
@@ -106,19 +138,33 @@ function gerarSenhaTemporaria(tamanho = 12) {
 async function buscarSolicitante(
   authUserId: string
 ): Promise<PerfilSolicitante | null> {
-  const { data, error } = await supabaseAdmin
-    .from("usuarios_app")
-    .select(`
-      id,
-      nome,
-      papel,
-      congregacao_id,
-      ativo,
-      auth_user_id
-    `)
-    .eq("auth_user_id", authUserId)
-    .eq("ativo", true)
-    .maybeSingle();
+  const { data, error } =
+    await supabaseAdmin
+      .from("usuarios_app")
+      .select(`
+        id,
+        nome,
+        papel,
+        congregacao_id,
+        ativo,
+        auth_user_id
+      `)
+      .eq(
+        "auth_user_id",
+        authUserId
+      )
+      .eq("ativo", true)
+      .maybeSingle();
+
+  console.log(
+    "DEBUG BUSCAR SOLICITANTE:",
+    {
+      authUserIdRecebido:
+        authUserId,
+      perfilEncontrado: data,
+      erroConsulta: error,
+    }
+  );
 
   if (error) {
     console.error(
@@ -129,57 +175,196 @@ async function buscarSolicitante(
     return null;
   }
 
-  return data as PerfilSolicitante | null;
+  return data as
+    | PerfilSolicitante
+    | null;
 }
 
-export async function POST(
+async function autenticarAdministrador(
   request: NextRequest
 ) {
   const token = obterToken(request);
 
   if (!token) {
-    return respostaErro(
-      "Sessão não informada.",
-      401
-    );
+    return {
+      erro: respostaErro(
+        "Sessão não informada.",
+        401
+      ),
+      usuarioAuth: null,
+      perfil: null,
+    };
   }
 
   const {
     data: dadosAuth,
     error: erroAuth,
-  } = await supabaseAdmin.auth.getUser(token);
+  } =
+    await supabaseAdmin.auth.getUser(
+      token
+    );
 
   if (
     erroAuth ||
     !dadosAuth.user
   ) {
-    return respostaErro(
-      "Sessão inválida ou expirada.",
-      401,
-      erroAuth
-    );
+    return {
+      erro: respostaErro(
+        "Sessão inválida ou expirada.",
+        401,
+        erroAuth
+      ),
+      usuarioAuth: null,
+      perfil: null,
+    };
   }
 
-  const solicitante =
+  console.log(
+    "DEBUG USUÁRIO AUTH:",
+    {
+      id: dadosAuth.user.id,
+      email:
+        dadosAuth.user.email,
+    }
+  );
+
+  const perfil =
     await buscarSolicitante(
       dadosAuth.user.id
     );
 
-  if (!solicitante) {
-    return respostaErro(
-      "Perfil administrativo não encontrado ou inativo.",
-      403
-    );
+  if (!perfil) {
+    return {
+      erro: respostaErro(
+        "Perfil administrativo não encontrado ou inativo.",
+        403
+      ),
+      usuarioAuth: null,
+      perfil: null,
+    };
   }
 
   if (
-    solicitante.papel !== "superadmin" &&
-    solicitante.papel !== "admin"
+    perfil.papel !==
+      "superadmin" &&
+    perfil.papel !== "admin"
   ) {
-    return respostaErro(
-      "Você não possui permissão para criar usuários.",
-      403
+    return {
+      erro: respostaErro(
+        "Você não possui permissão para administrar usuários.",
+        403
+      ),
+      usuarioAuth: null,
+      perfil: null,
+    };
+  }
+
+  return {
+    erro: null,
+    usuarioAuth:
+      dadosAuth.user,
+    perfil,
+  };
+}
+
+/*
+ * LISTAR USUÁRIOS
+ */
+export async function GET(
+  request: NextRequest
+) {
+  const autenticacao =
+    await autenticarAdministrador(
+      request
     );
+
+  if (
+    autenticacao.erro ||
+    !autenticacao.perfil
+  ) {
+    return autenticacao.erro;
+  }
+
+  const perfilSolicitante =
+    autenticacao.perfil;
+
+  let consulta = supabaseAdmin
+    .from("usuarios_app")
+    .select(`
+      id,
+      nome,
+      nome_usuario,
+      email,
+      telefone,
+      papel,
+      congregacao_id,
+      ativo,
+      auth_user_id,
+      deve_trocar_senha,
+      ultimo_login,
+      created_at,
+      congregacoes (
+        id,
+        nome
+      )
+    `)
+    .in("papel", [
+      "superadmin",
+      "admin",
+      "suporte",
+    ])
+    .order("nome");
+
+  if (
+    perfilSolicitante.papel ===
+    "admin"
+  ) {
+    consulta = consulta.eq(
+      "congregacao_id",
+      perfilSolicitante.congregacao_id
+    );
+  }
+
+  const { data, error } =
+    await consulta;
+
+  if (error) {
+    return respostaErro(
+      "Não foi possível carregar os usuários.",
+      500,
+      error
+    );
+  }
+
+  return NextResponse.json({
+    ok: true,
+    usuarios: data ?? [],
+    solicitante: {
+      papel:
+        perfilSolicitante.papel,
+      congregacaoId:
+        perfilSolicitante.congregacao_id,
+    },
+  });
+}
+
+/*
+ * CRIAR USUÁRIO
+ */
+export async function POST(
+  request: NextRequest
+) {
+  const autenticacao =
+    await autenticarAdministrador(
+      request
+    );
+
+  if (
+    autenticacao.erro ||
+    !autenticacao.perfil ||
+    !autenticacao.usuarioAuth
+  ) {
+    return autenticacao.erro;
   }
 
   let corpo: CorpoCriacaoUsuario;
@@ -203,7 +388,8 @@ export async function POST(
     .toLowerCase();
 
   const telefone =
-    corpo.telefone?.trim() || null;
+    corpo.telefone?.trim() ||
+    null;
 
   const papel = corpo.papel;
 
@@ -211,9 +397,10 @@ export async function POST(
     corpo.congregacaoId
   );
 
-  const usuarioAppId = corpo.usuarioAppId
-    ? Number(corpo.usuarioAppId)
-    : null;
+  const usuarioAppId =
+    corpo.usuarioAppId
+      ? Number(corpo.usuarioAppId)
+      : null;
 
   if (!nome) {
     return respostaErro(
@@ -222,7 +409,10 @@ export async function POST(
     );
   }
 
-  if (!email || !emailValido(email)) {
+  if (
+    !email ||
+    !emailValido(email)
+  ) {
     return respostaErro(
       "Informe um e-mail válido.",
       400
@@ -240,7 +430,9 @@ export async function POST(
   }
 
   if (
-    !Number.isInteger(congregacaoId) ||
+    !Number.isInteger(
+      congregacaoId
+    ) ||
     congregacaoId <= 0
   ) {
     return respostaErro(
@@ -249,11 +441,13 @@ export async function POST(
     );
   }
 
-  /*
-   * Admin comum só pode criar suporte
-   * da própria congregação.
-   */
-  if (solicitante.papel === "admin") {
+  const solicitante =
+    autenticacao.perfil;
+
+  if (
+    solicitante.papel ===
+    "admin"
+  ) {
     if (papel !== "suporte") {
       return respostaErro(
         "Administradores podem criar apenas usuários de suporte.",
@@ -296,35 +490,33 @@ export async function POST(
     );
   }
 
-  /*
-   * Localiza um perfil já existente.
-   * Isso permitirá aproveitar o registro antigo do Samir.
-   */
   let perfilExistente: {
     id: number;
     nome: string;
     email: string | null;
     papel: string;
-    congregacao_id: number | null;
-    auth_user_id: string | null;
+    congregacao_id:
+      | number
+      | null;
+    auth_user_id:
+      | string
+      | null;
   } | null = null;
 
   if (usuarioAppId) {
-    const {
-      data,
-      error,
-    } = await supabaseAdmin
-      .from("usuarios_app")
-      .select(`
-        id,
-        nome,
-        email,
-        papel,
-        congregacao_id,
-        auth_user_id
-      `)
-      .eq("id", usuarioAppId)
-      .maybeSingle();
+    const { data, error } =
+      await supabaseAdmin
+        .from("usuarios_app")
+        .select(`
+          id,
+          nome,
+          email,
+          papel,
+          congregacao_id,
+          auth_user_id
+        `)
+        .eq("id", usuarioAppId)
+        .maybeSingle();
 
     if (error) {
       return respostaErro(
@@ -336,21 +528,19 @@ export async function POST(
 
     perfilExistente = data;
   } else {
-    const {
-      data,
-      error,
-    } = await supabaseAdmin
-      .from("usuarios_app")
-      .select(`
-        id,
-        nome,
-        email,
-        papel,
-        congregacao_id,
-        auth_user_id
-      `)
-      .ilike("email", email)
-      .maybeSingle();
+    const { data, error } =
+      await supabaseAdmin
+        .from("usuarios_app")
+        .select(`
+          id,
+          nome,
+          email,
+          papel,
+          congregacao_id,
+          auth_user_id
+        `)
+        .ilike("email", email)
+        .maybeSingle();
 
     if (error) {
       return respostaErro(
@@ -363,19 +553,18 @@ export async function POST(
     perfilExistente = data;
   }
 
-  if (perfilExistente?.auth_user_id) {
+  if (
+    perfilExistente?.auth_user_id
+  ) {
     return respostaErro(
       "Este usuário já possui uma conta de acesso.",
       409
     );
   }
 
-  /*
-   * Admin não pode aproveitar um registro pertencente
-   * a outra congregação.
-   */
   if (
-    solicitante.papel === "admin" &&
+    solicitante.papel ===
+      "admin" &&
     perfilExistente &&
     perfilExistente.congregacao_id !==
       solicitante.congregacao_id
@@ -393,16 +582,20 @@ export async function POST(
     data: usuarioCriado,
     error: erroCriarAuth,
   } =
-    await supabaseAdmin.auth.admin.createUser({
-      email,
-      password: senhaTemporaria,
-      email_confirm: true,
-      user_metadata: {
-        nome,
-        papel,
-        congregacao_id: congregacaoId,
-      },
-    });
+    await supabaseAdmin.auth.admin.createUser(
+      {
+        email,
+        password:
+          senhaTemporaria,
+        email_confirm: true,
+        user_metadata: {
+          nome,
+          papel,
+          congregacao_id:
+            congregacaoId,
+        },
+      }
+    );
 
   if (
     erroCriarAuth ||
@@ -425,61 +618,70 @@ export async function POST(
     telefone,
     papel,
     perfil: papel,
-    congregacao_id: congregacaoId,
+    congregacao_id:
+      congregacaoId,
     ativo: true,
-    auth_user_id: authUserId,
+    auth_user_id:
+      authUserId,
     deve_trocar_senha: true,
-    criado_por: dadosAuth.user.id,
+    criado_por:
+      autenticacao.usuarioAuth.id,
     desativado_em: null,
     desativado_por: null,
     updated_at:
       new Date().toISOString(),
   };
 
-  let erroPerfil: unknown = null;
-  let perfilSalvoId: number | null = null;
+  let erroPerfil:
+    | unknown
+    | null = null;
+
+  let perfilSalvoId:
+    | number
+    | null = null;
 
   if (perfilExistente) {
-    const {
-      data,
-      error,
-    } = await supabaseAdmin
-      .from("usuarios_app")
-      .update(dadosPerfil)
-      .eq("id", perfilExistente.id)
-      .select("id")
-      .single();
+    const { data, error } =
+      await supabaseAdmin
+        .from("usuarios_app")
+        .update(dadosPerfil)
+        .eq(
+          "id",
+          perfilExistente.id
+        )
+        .select("id")
+        .single();
 
     erroPerfil = error;
-    perfilSalvoId = data?.id ?? null;
+    perfilSalvoId =
+      data?.id ?? null;
   } else {
     const nomeUsuarioBase =
       email.split("@")[0];
 
-    const {
-      data,
-      error,
-    } = await supabaseAdmin
-      .from("usuarios_app")
-      .insert({
-        ...dadosPerfil,
-        nome_usuario: `${nomeUsuarioBase}-${randomInt(
-          1000,
-          9999
-        )}`,
-      })
-      .select("id")
-      .single();
+    const { data, error } =
+      await supabaseAdmin
+        .from("usuarios_app")
+        .insert({
+          ...dadosPerfil,
+          nome_usuario:
+            `${nomeUsuarioBase}-${randomInt(
+              1000,
+              9999
+            )}`,
+        })
+        .select("id")
+        .single();
 
     erroPerfil = error;
-    perfilSalvoId = data?.id ?? null;
+    perfilSalvoId =
+      data?.id ?? null;
   }
 
-  if (erroPerfil || !perfilSalvoId) {
-    /*
-     * Evita deixar uma conta órfã no Auth
-     * quando o perfil não pôde ser salvo.
-     */
+  if (
+    erroPerfil ||
+    !perfilSalvoId
+  ) {
     await supabaseAdmin.auth.admin.deleteUser(
       authUserId
     );
@@ -492,24 +694,24 @@ export async function POST(
   }
 
   const urlAcesso =
-    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env
+      .NEXT_PUBLIC_APP_URL ||
     request.nextUrl.origin;
 
-  const mensagemWhatsApp =
-    [
-      `Olá, ${nome}.`,
-      "",
-      "Seu acesso ao Aplicativo de Territórios foi criado.",
-      "",
-      `E-mail: ${email}`,
-      `Senha temporária: ${senhaTemporaria}`,
-      `Perfil: ${papel}`,
-      `Congregação: ${congregacao.nome}`,
-      "",
-      `Acesse: ${urlAcesso}/configuracoes`,
-      "",
-      "No primeiro acesso, altere sua senha.",
-    ].join("\n");
+  const mensagemWhatsApp = [
+    `Olá, ${nome}.`,
+    "",
+    "Seu acesso ao Aplicativo de Territórios foi criado.",
+    "",
+    `E-mail: ${email}`,
+    `Senha temporária: ${senhaTemporaria}`,
+    `Perfil: ${papel}`,
+    `Congregação: ${congregacao.nome}`,
+    "",
+    `Acesse: ${urlAcesso}/configuracoes`,
+    "",
+    "No primeiro acesso, altere sua senha.",
+  ].join("\n");
 
   return NextResponse.json(
     {
@@ -534,4 +736,294 @@ export async function POST(
       status: 201,
     }
   );
+}
+
+/*
+ * EDITAR, ATIVAR OU DESATIVAR
+ */
+export async function PATCH(
+  request: NextRequest
+) {
+  const autenticacao =
+    await autenticarAdministrador(
+      request
+    );
+
+  if (
+    autenticacao.erro ||
+    !autenticacao.perfil ||
+    !autenticacao.usuarioAuth
+  ) {
+    return autenticacao.erro;
+  }
+
+  let corpo: CorpoAtualizacaoUsuario;
+
+  try {
+    corpo =
+      (await request.json()) as CorpoAtualizacaoUsuario;
+  } catch {
+    return respostaErro(
+      "Dados enviados são inválidos.",
+      400
+    );
+  }
+
+  const usuarioId = Number(
+    corpo.usuarioId
+  );
+
+  if (
+    !Number.isInteger(usuarioId) ||
+    usuarioId <= 0
+  ) {
+    return respostaErro(
+      "Usuário inválido.",
+      400
+    );
+  }
+
+  const {
+    data: usuarioAlvo,
+    error: erroUsuario,
+  } = await supabaseAdmin
+    .from("usuarios_app")
+    .select(`
+      id,
+      nome,
+      email,
+      papel,
+      congregacao_id,
+      ativo,
+      auth_user_id
+    `)
+    .eq("id", usuarioId)
+    .maybeSingle();
+
+  if (erroUsuario) {
+    return respostaErro(
+      "Não foi possível localizar o usuário.",
+      500,
+      erroUsuario
+    );
+  }
+
+  if (!usuarioAlvo) {
+    return respostaErro(
+      "Usuário não encontrado.",
+      404
+    );
+  }
+
+  const solicitante =
+    autenticacao.perfil;
+
+  if (
+    solicitante.papel ===
+    "admin"
+  ) {
+    if (
+      usuarioAlvo.congregacao_id !==
+      solicitante.congregacao_id
+    ) {
+      return respostaErro(
+        "Você não pode administrar usuários de outra congregação.",
+        403
+      );
+    }
+
+    if (
+      usuarioAlvo.papel !==
+      "suporte"
+    ) {
+      return respostaErro(
+        "Administradores podem alterar apenas usuários de suporte.",
+        403
+      );
+    }
+
+    if (
+      corpo.papel &&
+      corpo.papel !== "suporte"
+    ) {
+      return respostaErro(
+        "Administradores não podem promover usuários para administrador.",
+        403
+      );
+    }
+
+    if (
+      corpo.congregacaoId &&
+      corpo.congregacaoId !==
+        solicitante.congregacao_id
+    ) {
+      return respostaErro(
+        "Você não pode mover o usuário para outra congregação.",
+        403
+      );
+    }
+  }
+
+  if (
+    usuarioAlvo.auth_user_id ===
+      autenticacao.usuarioAuth.id &&
+    corpo.ativo === false
+  ) {
+    return respostaErro(
+      "Você não pode desativar seu próprio usuário.",
+      400
+    );
+  }
+
+  if (
+    usuarioAlvo.papel ===
+      "superadmin" &&
+    usuarioAlvo.auth_user_id !==
+      autenticacao.usuarioAuth.id
+  ) {
+    return respostaErro(
+      "Este superadministrador não pode ser alterado por esta tela.",
+      403
+    );
+  }
+
+  const atualizacoes: Record<
+    string,
+    unknown
+  > = {};
+
+  if (
+    typeof corpo.nome ===
+    "string"
+  ) {
+    const nomeLimpo =
+      corpo.nome
+        .trim()
+        .replace(/\s+/g, " ");
+
+    if (!nomeLimpo) {
+      return respostaErro(
+        "Informe o nome do usuário.",
+        400
+      );
+    }
+
+    atualizacoes.nome =
+      nomeLimpo;
+  }
+
+  if (
+    corpo.telefone !==
+    undefined
+  ) {
+    atualizacoes.telefone =
+      corpo.telefone?.trim() ||
+      null;
+  }
+
+  if (corpo.papel) {
+    atualizacoes.papel =
+      corpo.papel;
+
+    atualizacoes.perfil =
+      corpo.papel;
+  }
+
+  if (
+    corpo.congregacaoId !==
+    undefined
+  ) {
+    const congregacaoId =
+      Number(
+        corpo.congregacaoId
+      );
+
+    if (
+      !Number.isInteger(
+        congregacaoId
+      ) ||
+      congregacaoId <= 0
+    ) {
+      return respostaErro(
+        "Congregação inválida.",
+        400
+      );
+    }
+
+    atualizacoes.congregacao_id =
+      congregacaoId;
+  }
+
+  if (
+    typeof corpo.ativo ===
+    "boolean"
+  ) {
+    if (
+      corpo.ativo &&
+      !usuarioAlvo.auth_user_id
+    ) {
+      return respostaErro(
+        "Este usuário ainda não possui conta de acesso. Use a opção de criar acesso.",
+        400
+      );
+    }
+
+    atualizacoes.ativo =
+      corpo.ativo;
+
+    atualizacoes.desativado_em =
+      corpo.ativo
+        ? null
+        : new Date().toISOString();
+
+    atualizacoes.desativado_por =
+      corpo.ativo
+        ? null
+        : autenticacao.usuarioAuth.id;
+  }
+
+  if (
+    Object.keys(
+      atualizacoes
+    ).length === 0
+  ) {
+    return respostaErro(
+      "Nenhuma alteração foi informada.",
+      400
+    );
+  }
+
+  const {
+    data: usuarioAtualizado,
+    error: erroAtualizar,
+  } = await supabaseAdmin
+    .from("usuarios_app")
+    .update(atualizacoes)
+    .eq("id", usuarioId)
+    .select(`
+      id,
+      nome,
+      email,
+      telefone,
+      papel,
+      congregacao_id,
+      ativo,
+      auth_user_id,
+      deve_trocar_senha
+    `)
+    .single();
+
+  if (erroAtualizar) {
+    return respostaErro(
+      "Não foi possível atualizar o usuário.",
+      500,
+      erroAtualizar
+    );
+  }
+
+  return NextResponse.json({
+    ok: true,
+    usuario:
+      usuarioAtualizado,
+  });
 }
