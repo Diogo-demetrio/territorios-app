@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import CongregacaoCard from "@/components/cards/CongregacaoCard";
 import { Search, RefreshCw } from "lucide-react";
+import { APP_VERSION } from "@/lib/version";
 
 export default async function Home() {
   const { data: congregacoes } = await supabase
@@ -49,9 +50,17 @@ export default async function Home() {
 
         <div className="mx-auto flex max-w-3xl items-center justify-between">
 
-          <h1 className="text-xl font-semibold">
-            Congregações
-          </h1>
+          <div className="flex items-center gap-3">
+
+  <h1 className="text-xl font-semibold">
+    Congregações
+  </h1>
+
+  <span className="rounded-md bg-violet-600/40 px-2 py-0.5 text-xs font-medium text-violet-100 border border-violet-400/30">
+    {APP_VERSION}
+  </span>
+
+</div>
 
           <div className="flex gap-5">
 
