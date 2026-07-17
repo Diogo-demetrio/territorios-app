@@ -156,17 +156,7 @@ async function buscarSolicitante(
       .eq("ativo", true)
       .maybeSingle();
 
-  console.log(
-    "DEBUG BUSCAR SOLICITANTE:",
-    {
-      authUserIdRecebido:
-        authUserId,
-      perfilEncontrado: data,
-      erroConsulta: error,
-    }
-  );
-
-  if (error) {
+    if (error) {
     console.error(
       "Erro ao buscar perfil solicitante:",
       error
@@ -219,15 +209,7 @@ async function autenticarAdministrador(
     };
   }
 
-  console.log(
-    "DEBUG USUÁRIO AUTH:",
-    {
-      id: dadosAuth.user.id,
-      email:
-        dadosAuth.user.email,
-    }
-  );
-
+  
   const perfil =
     await buscarSolicitante(
       dadosAuth.user.id
