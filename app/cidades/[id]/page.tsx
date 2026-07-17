@@ -2,18 +2,42 @@ import Link from "next/link";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
+type CidadePageProps = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ congregacao?: string }>;
+};
+
 export default async function Cidade({
   params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+  searchParams,
+}: CidadePageProps) {
   const { id } = await params;
+  const { congregacao } = await searchParams;
+
+  const cidadeId = Number(id);
+  const congregacaoId = Number(congregacao);
+
+  if (
+    !Number.isInteger(cidadeId) ||
+    cidadeId <= 0 ||
+    !Number.isInteger(congregacaoId) ||
+    congregacaoId <= 0
+  ) {
+    return (
+      <main className="min-h-screen bg-slate-100 p-4">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          Os dados da cidade ou da congregação são inválidos.
+        </div>
+      </main>
+    );
+  }
 
   const { data: cidade, error: erroCidade } = await supabase
     .from("cidades")
-    .select("id, nome")
-    .eq("id", id)
-    .single();
+    .select("id, nome, congregacao_id")
+    .eq("id", cidadeId)
+    .eq("congregacao_id", congregacaoId)
+    .maybeSingle();
 
   const { data: territorios, error: erroTerritorios } = await supabase
     .from("v_territorios_resumo")
@@ -33,7 +57,8 @@ export default async function Cidade({
       total_novos,
       ativo
     `)
-    .eq("cidade_id", id)
+    .eq("cidade_id", cidadeId)
+    .eq("congregacao_id", congregacaoId)
     .eq("ativo", true)
     .order("nome");
 
@@ -41,7 +66,7 @@ export default async function Cidade({
     return (
       <main className="min-h-screen bg-slate-100 p-4">
         <div className="mx-auto max-w-3xl rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          Não foi possível carregar esta cidade.
+          Não foi possível carregar esta cidade para a congregação selecionada.
         </div>
       </main>
     );
@@ -52,8 +77,9 @@ export default async function Cidade({
       <div className="mx-auto max-w-3xl">
         <div className="mb-5 flex items-center gap-3">
           <Link
-            href="/"
+            href={`/congregacoes/${congregacaoId}`}
             className="grid h-10 w-10 place-items-center rounded-full bg-white text-slate-600 shadow-sm ring-1 ring-slate-200"
+            aria-label="Voltar para a congregação"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -78,7 +104,7 @@ export default async function Cidade({
             {territorios.map((territorio) => (
               <Link
                 key={territorio.id}
-                href={`/territorios/${territorio.id}`}
+                href={`/territorios/${territorio.id}?congregacao=${congregacaoId}`}
                 className="block rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:ring-violet-300"
               >
                 <div className="flex items-start justify-between gap-3">

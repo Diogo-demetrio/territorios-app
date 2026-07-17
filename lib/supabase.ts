@@ -1,6 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
 
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+/**
+ * Cliente Supabase usado nos componentes do navegador.
+ *
+ * Este export foi mantido temporariamente para não quebrar os
+ * componentes existentes durante a refatoração.
+ */
+export const supabase = createClient();
