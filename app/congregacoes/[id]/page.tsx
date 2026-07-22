@@ -61,25 +61,7 @@ export default async function CongregacaoPage({
   const territorios =
     (territoriosData ?? []) as TerritorioResumo[];
 
-  /*
-   * Enquanto cidades.congregacao_id ainda existe,
-   * também buscamos cidades cadastradas para a congregação.
-   *
-   * Isso permite mostrar, por exemplo, Nova Veneza,
-   * mesmo que ainda não tenha territórios.
-   */
-  const { data: cidadesCadastradas } = await supabase
-    .from("cidades")
-    .select("id, nome")
-    .eq("congregacao_id", congregacaoId)
-    .eq("ativo", true)
-    .order("nome");
-
   const cidadesPorId = new Map<number, Cidade>();
-
-  for (const cidade of (cidadesCadastradas ?? []) as Cidade[]) {
-    cidadesPorId.set(cidade.id, cidade);
-  }
 
   /*
    * Inclui também cidades realmente utilizadas pelos territórios.
@@ -99,25 +81,26 @@ export default async function CongregacaoPage({
   }
 
   const cidades = Array.from(cidadesPorId.values())
-    .map((cidade) => {
-      const territoriosDaCidade = territorios.filter(
-        (territorio) =>
-          territorio.cidade_id === cidade.id
-      );
-
-      return {
-        ...cidade,
-        totalTerritorios: territoriosDaCidade.length,
-        totalEnderecos: territoriosDaCidade.reduce(
-          (total, territorio) =>
-            total + (territorio.total_enderecos ?? 0),
-          0
-        ),
-      };
-    })
-    .sort((a, b) =>
-      a.nome.localeCompare(b.nome, "pt-BR")
+  .map((cidade) => {
+    const territoriosDaCidade = territorios.filter(
+      (territorio) =>
+        territorio.cidade_id === cidade.id
     );
+
+    return {
+      ...cidade,
+      totalTerritorios: territoriosDaCidade.length,
+      totalEnderecos: territoriosDaCidade.reduce(
+        (total, territorio) =>
+          total + (territorio.total_enderecos ?? 0),
+        0
+      ),
+    };
+  })
+  .filter((cidade) => cidade.totalTerritorios > 0)
+  .sort((a, b) =>
+    a.nome.localeCompare(b.nome, "pt-BR")
+  );
 
   const totalTerritorios = territorios.length;
 

@@ -33,11 +33,11 @@ export default async function Cidade({
   }
 
   const { data: cidade, error: erroCidade } = await supabase
-    .from("cidades")
-    .select("id, nome, congregacao_id")
-    .eq("id", cidadeId)
-    .eq("congregacao_id", congregacaoId)
-    .maybeSingle();
+  .from("cidades")
+  .select("id, nome")
+  .eq("id", cidadeId)
+  .eq("ativo", true)
+  .maybeSingle();
 
   const { data: territorios, error: erroTerritorios } = await supabase
     .from("v_territorios_resumo")

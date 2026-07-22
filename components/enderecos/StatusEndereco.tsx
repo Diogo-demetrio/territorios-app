@@ -95,6 +95,10 @@ export default function StatusEndereco({ endereco }: Props) {
 
   const statusInfo = STATUS_ENDERECO[statusAtual];
 
+  const tipoImovel = endereco.tipo || "Tipo não informado";
+
+const numeroSequencial = endereco.numero_sequencial;
+
   return (
     <div className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
       <div className="mb-4 flex items-start justify-between gap-3">
@@ -111,15 +115,21 @@ export default function StatusEndereco({ endereco }: Props) {
             <p className="mt-1 text-sm text-slate-500">
               {endereco.bairro} • {endereco.cidade}
             </p>
+
+<div className="mt-2">
+  <span className="inline-flex rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700">
+    {tipoImovel}
+  </span>
+</div>
+
           </div>
         </div>
 
-        <span
-          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${statusInfo.badge}`}
-        >
-          <span className={`h-2 w-2 rounded-full ${statusInfo.dot}`} />
-          {statusInfo.label}
-        </span>
+       {numeroSequencial != null && (
+  <span className="inline-flex shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+    Endereço nº {numeroSequencial}
+  </span>
+)}
       </div>
 
       {(endereco.complemento || endereco.observacoes) && (

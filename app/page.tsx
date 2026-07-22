@@ -4,10 +4,13 @@ import { Search, RefreshCw } from "lucide-react";
 import { APP_VERSION } from "@/lib/version";
 
 export default async function Home() {
-  const { data: congregacoes } = await supabase
-    .from("congregacoes")
+  const { data: congregacoes, error } = await supabase
+    .from("v_congregacoes_resumo")
     .select("*")
     .order("nome");
+    if (error) {console.error(error);
+      
+    }
 
   const cards =
     (await Promise.all(
