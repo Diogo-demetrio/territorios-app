@@ -4,6 +4,7 @@ import ListaEnderecosSelecionavel from "@/components/enderecos/ListaEnderecosSel
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import Link from "next/link";
+import EnderecosInativos from "@/components/enderecos/EnderecosInativos";
 import {
   ArrowLeft,
   MapPin,
@@ -85,8 +86,9 @@ export default async function Territorio({
     )
   `)
     .eq("territorio_id", id)
-    .order("numero_sequencial", { ascending: true, nullsFirst: false })
-    .order("id");
+.eq("ativo", true)
+.order("numero_sequencial", { ascending: true, nullsFirst: false })
+    
 
   const lista = enderecos ?? [];
 
@@ -228,7 +230,11 @@ export default async function Territorio({
 
         <AdminEnderecoArea territorio={territorio} />
 
-        <ListaEnderecosSelecionavel
+<EnderecosInativos
+  territorioId={Number(territorio.id)}
+/>
+
+<ListaEnderecosSelecionavel
           enderecos={lista}
           territorio={territorio}
           congregacao={congregacao}

@@ -38,6 +38,7 @@ export default async function MapaPage({
   congregacao_id
 )
     `)
+    .eq("ativo", true)
     .eq("territorios.congregacao_id", id);
 
   return (

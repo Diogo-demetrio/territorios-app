@@ -8,94 +8,58 @@ export default async function Home() {
     .from("v_congregacoes_resumo")
     .select("*")
     .order("nome");
-    if (error) {console.error(error);
-      
-    }
 
-  const cards =
-    (await Promise.all(
-      (congregacoes ?? []).map(async (c) => {
-        const { count: totalTerritorios } = await supabase
-          .from("territorios")
-          .select("*", { count: "exact", head: true })
-          .eq("congregacao_id", c.id);
+  const cards = (congregacoes ?? []).map((congregacao) => ({
+    ...congregacao,
 
-        const { data: territorios } = await supabase
-          .from("territorios")
-          .select("id")
-          .eq("congregacao_id", c.id);
+    totalTerritorios:
+      congregacao.total_territorios ?? 0,
 
-        const ids = territorios?.map((t) => t.id) ?? [];
-
-        let totalEnderecos = 0;
-
-        if (ids.length) {
-          const { count } = await supabase
-            .from("enderecos")
-            .select("*", { count: "exact", head: true })
-            .in("territorio_id", ids);
-
-          totalEnderecos = count ?? 0;
-        }
-
-        return {
-          ...c,
-          totalTerritorios: totalTerritorios ?? 0,
-          totalEnderecos,
-        };
-      })
-    )) ?? [];
+    totalEnderecos:
+      congregacao.total_enderecos ?? 0,
+  }));
 
   return (
     <main className="min-h-screen bg-slate-100">
-
       <header className="sticky top-0 z-20 bg-violet-700 px-6 py-5 text-white shadow">
-
         <div className="mx-auto flex max-w-3xl items-center justify-between">
-
           <div className="flex items-center gap-3">
+            <h1 className="text-xl font-semibold">
+              Congregações
+            </h1>
 
-  <h1 className="text-xl font-semibold">
-    Congregações
-  </h1>
-
-  <span className="rounded-md bg-violet-600/40 px-2 py-0.5 text-xs font-medium text-violet-100 border border-violet-400/30">
-    {APP_VERSION}
-  </span>
-
-</div>
-
-          <div className="flex gap-5">
-
-            <Search className="h-5 w-5 cursor-pointer" />
-
-            <RefreshCw className="h-5 w-5 cursor-pointer" />
-
+            <span className="rounded-md border border-violet-400/30 bg-violet-600/40 px-2 py-0.5 text-xs font-medium text-violet-100">
+              {APP_VERSION}
+            </span>
           </div>
 
+          <div className="flex gap-5">
+            <Search className="h-5 w-5 cursor-pointer" />
+            <RefreshCw className="h-5 w-5 cursor-pointer" />
+          </div>
         </div>
-
       </header>
 
       <section className="mx-auto max-w-3xl p-6">
-
         <p className="mb-5 text-slate-500">
           Selecione uma congregação para continuar.
         </p>
 
-        <div className="space-y-5">
+        {error && (
+          <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            Não foi possível carregar as congregações.
+          </div>
+        )}
 
-          {cards.map((c) => (
+        <div className="space-y-5">
+          {cards.map((congregacao) => (
             <CongregacaoCard
-              key={c.id}
-              congregacao={c}
+              key={congregacao.id}
+              congregacao={congregacao}
             />
           ))}
-
         </div>
-
       </section>
-
     </main>
   );
 }

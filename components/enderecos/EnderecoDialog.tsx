@@ -42,6 +42,7 @@ export type EnderecoEdicao = {
   longitude: number | null;
   observacoes: string | null;
   status: string | null;
+  ativo: boolean | null;
 };
 
 type Props = {
@@ -82,9 +83,7 @@ export default function EnderecoDialog({
 }: Props) {
   const [cidades, setCidades] = useState<Cidade[]>([]);
   const [bairros, setBairros] = useState<Bairro[]>([]);
-  const [territorios, setTerritorios] = useState<Territorio[]>(
-    []
-  );
+  const [territorios, setTerritorios] = useState<Territorio[]>([]);
 
   const [cidadeId, setCidadeId] = useState("");
   const [bairroId, setBairroId] = useState("");
@@ -98,9 +97,7 @@ export default function EnderecoDialog({
   const [observacoes, setObservacoes] = useState("");
   const [status, setStatus] = useState("novo");
 
-  const [carregandoOpcoes, setCarregandoOpcoes] =
-    useState(false);
-
+  const [carregandoOpcoes, setCarregandoOpcoes] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
   const editando = Boolean(endereco?.id);
@@ -115,11 +112,6 @@ export default function EnderecoDialog({
     );
   }, [bairros, cidadeId]);
 
-  /*
-   * Um território pode conter endereços de vários bairros.
-   * Por isso, os territórios são filtrados por congregação e cidade,
-   * mas não obrigatoriamente pelo bairro de referência.
-   */
   const territoriosDaCidade = useMemo(() => {
     if (!cidadeId) return [];
 
@@ -153,9 +145,7 @@ export default function EnderecoDialog({
           : ""
       );
 
-      setTerritorioId(
-        String(endereco.territorio_id)
-      );
+      setTerritorioId(String(endereco.territorio_id));
 
       setTipo(endereco.tipo || "Casa");
       setRua(endereco.rua || "");
@@ -178,10 +168,6 @@ export default function EnderecoDialog({
     }
   }, [aberto, endereco, territorioInicialId]);
 
-  /*
-   * Quando os territórios forem carregados, descobre automaticamente
-   * a cidade do território inicial em um novo cadastro.
-   */
   useEffect(() => {
     if (
       !aberto ||
@@ -198,9 +184,7 @@ export default function EnderecoDialog({
     );
 
     if (territorioInicial?.cidade_id) {
-      setCidadeId(
-        String(territorioInicial.cidade_id)
-      );
+      setCidadeId(String(territorioInicial.cidade_id));
     }
   }, [
     aberto,
@@ -441,6 +425,65 @@ export default function EnderecoDialog({
     return data ?? [];
   }
 
+  async function inativarEndereco() {
+  if (!endereco?.id) return;
+
+  const confirmar = window.confirm(
+    `Inativar o endereço "${endereco.rua}, ${endereco.numero}"?\n\n` +
+      "Ele deixará de aparecer na lista normal, mas continuará salvo no sistema."
+  );
+
+  if (!confirmar) return;
+
+  setSalvando(true);
+
+  try {
+    const { data, error } = await supabase
+      .from("enderecos")
+      .update({ ativo: false })
+      .eq("id", endereco.id)
+      .select("id, ativo")
+      .maybeSingle();
+
+    if (error) {
+      console.error("Erro ao inativar:", error);
+
+      alert(
+        `Erro ao inativar endereço: ${error.message}`
+      );
+
+      return;
+    }
+
+    if (!data) {
+      alert(
+        "O endereço não foi alterado. O usuário não possui permissão para inativar este registro."
+      );
+
+      return;
+    }
+
+    if (data.ativo !== false) {
+      alert(
+        "A alteração não foi confirmada pelo banco de dados."
+      );
+
+      return;
+    }
+
+    fechar();
+    await aoSalvar();
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      "Não foi possível inativar o endereço."
+    );
+  } finally {
+    setSalvando(false);
+  }
+}
+
   async function salvar() {
     const ruaLimpa = rua.trim().replace(/\s+/g, " ");
     const numeroLimpo = numero
@@ -524,7 +567,11 @@ export default function EnderecoDialog({
 
             return (
               `• ${item.rua}, ${item.numero}` +
-              `${item.complemento ? ` — ${item.complemento}` : ""}` +
+              `${
+                item.complemento
+                  ? ` — ${item.complemento}`
+                  : ""
+              }` +
               `\n  ${item.bairro} — ${territorioNome}`
             );
           })
@@ -600,7 +647,10 @@ export default function EnderecoDialog({
       } else {
         const { error } = await supabase
           .from("enderecos")
-          .insert(dados);
+          .insert({
+            ...dados,
+            ativo: true,
+          });
 
         if (error) {
           console.error(error);
@@ -631,8 +681,8 @@ export default function EnderecoDialog({
 
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center overflow-y-auto bg-black/40 px-4 py-6">
-      <div className="my-auto w-full max-w-lg rounded-3xl bg-white shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 rounded-t-3xl border-b bg-violet-700 px-5 py-4 text-white">
+      <div className="my-auto w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-3 border-b bg-violet-700 px-5 py-4 text-white">
           <div>
             <p className="text-xs opacity-80">
               {editando
@@ -642,7 +692,9 @@ export default function EnderecoDialog({
 
             <h2 className="text-lg font-bold">
               {editando
-                ? `${endereco?.rua ?? ""}, ${endereco?.numero ?? ""}`
+                ? `${endereco?.rua ?? ""}, ${
+                    endereco?.numero ?? ""
+                  }`
                 : "Cadastrar endereço"}
             </h2>
           </div>
@@ -658,7 +710,7 @@ export default function EnderecoDialog({
           </button>
         </div>
 
-        <div className="max-h-[70vh] space-y-4 overflow-y-auto p-5">
+        <div className="max-h-[65vh] space-y-4 overflow-y-auto p-5">
           {carregandoOpcoes ? (
             <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">
               Carregando opções...
@@ -867,30 +919,41 @@ export default function EnderecoDialog({
           )}
         </div>
 
-        <div className="sticky bottom-0 flex gap-2 rounded-b-3xl border-t bg-white px-5 py-4">
-          <button
-            type="button"
-            onClick={fechar}
-            disabled={salvando}
-            className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 disabled:opacity-60"
-          >
-            Cancelar
-          </button>
+        <div className="space-y-2 border-t bg-white px-5 py-4">
+          {endereco?.id && (
+            <button
+              type="button"
+              onClick={inativarEndereco}
+              disabled={salvando}
+              className="w-full rounded-xl border border-red-200 bg-red-50 py-3 text-sm font-semibold text-red-700 disabled:opacity-60"
+            >
+              Inativar endereço
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={salvar}
-            disabled={
-              salvando || carregandoOpcoes
-            }
-            className="flex-1 rounded-xl bg-violet-700 py-3 text-sm font-semibold text-white disabled:opacity-60"
-          >
-            {salvando
-              ? "Salvando..."
-              : editando
-                ? "Salvar alterações"
-                : "Cadastrar endereço"}
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={fechar}
+              disabled={salvando}
+              className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 disabled:opacity-60"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              onClick={salvar}
+              disabled={salvando || carregandoOpcoes}
+              className="flex-1 rounded-xl bg-violet-700 py-3 text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {salvando
+                ? "Salvando..."
+                : editando
+                  ? "Salvar alterações"
+                  : "Cadastrar endereço"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
