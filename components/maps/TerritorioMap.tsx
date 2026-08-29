@@ -9,15 +9,24 @@ import {
   useMap,
 } from "react-leaflet";
 import L from "leaflet";
-import { Map, MapPinned, Navigation, CheckCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  Map,
+  MapPinned,
+  Navigation,
+  CheckCircle,
+} from "lucide-react";
 
 import { STATUS_ENDERECO, normalizarStatus } from "@/lib/status";
+import type { EnderecoMapa } from "@/components/maps/MapaFiltros";
 
 type Props = {
-  enderecos: any[];
+  enderecos: EnderecoMapa[];
 };
 
-function coordenadas(endereco: any): [number, number] | null {
+type PontoMapa = EnderecoMapa & { coords: [number, number] };
+
+function coordenadas(endereco: EnderecoMapa): [number, number] | null {
   if (endereco.latitude && endereco.longitude) {
     return [Number(endereco.latitude), Number(endereco.longitude)];
   }
@@ -33,7 +42,7 @@ function coordenadas(endereco: any): [number, number] | null {
   return null;
 }
 
-function AjustarZoom({ pontos }: { pontos: any[] }) {
+function AjustarZoom({ pontos }: { pontos: PontoMapa[] }) {
   const map = useMap();
 
   if (pontos.length > 0) {
@@ -52,7 +61,7 @@ function AjustarZoom({ pontos }: { pontos: any[] }) {
 export default function TerritorioMap({ enderecos }: Props) {
   const pontos = enderecos
     .map((e) => ({ ...e, coords: coordenadas(e) }))
-    .filter((e) => e.coords);
+    .filter((e): e is PontoMapa => e.coords !== null);
 
   const centro = pontos[0]?.coords ?? [-28.6778, -49.3697];
 
@@ -116,6 +125,18 @@ export default function TerritorioMap({ enderecos }: Props) {
                       {status.label}
                     </span>
                   </div>
+
+                  {endereco.possivelDuplicado && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-2.5 text-red-800">
+                      <div className="flex items-center gap-2 font-semibold">
+                        <AlertTriangle className="h-4 w-4" />
+                        Possível endereço duplicado
+                      </div>
+                      <p className="mt-1 text-xs">
+                        Encontrado em: {endereco.territoriosDuplicados?.join(", ")}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     <a

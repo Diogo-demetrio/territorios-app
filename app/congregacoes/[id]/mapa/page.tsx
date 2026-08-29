@@ -3,6 +3,7 @@ import { ArrowLeft, Search, RefreshCw } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import MapaFiltros from "@/components/maps/MapaFiltros";
+import type { EnderecoMapa } from "@/components/maps/MapaFiltros";
 
 export default async function MapaPage({
   params,
@@ -23,8 +24,11 @@ export default async function MapaPage({
       id,
       rua,
       numero,
+      bairro_id,
+      cidade_id,
       bairro,
       cidade,
+      ativo,
       status,
       latlong,
       latitude,
@@ -40,6 +44,13 @@ export default async function MapaPage({
     `)
     .eq("ativo", true)
     .eq("territorios.congregacao_id", id);
+
+  const enderecosMapa = (enderecos ?? []).map((endereco) => ({
+    ...endereco,
+    territorios: Array.isArray(endereco.territorios)
+      ? endereco.territorios[0] ?? null
+      : endereco.territorios,
+  })) as EnderecoMapa[];
 
   return (
     <main className="min-h-screen bg-slate-100 pb-24">
@@ -59,7 +70,7 @@ export default async function MapaPage({
       </header>
 
       <section className="mx-auto max-w-3xl p-4">
-        <MapaFiltros enderecos={enderecos ?? []} />
+        <MapaFiltros enderecos={enderecosMapa} />
       </section>
 
       <MobileBottomNav congregacaoId={id} />

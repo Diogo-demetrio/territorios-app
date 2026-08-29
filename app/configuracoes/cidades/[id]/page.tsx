@@ -50,6 +50,9 @@ function CidadeDetalhesContent() {
   const [bairros, setBairros] =
     useState<BairroAdmin[]>([]);
 
+  const [cidadeCongregacaoId, setCidadeCongregacaoId] =
+    useState<number | null>(null);
+
   const [
     bairroDialogAberto,
     setBairroDialogAberto,
@@ -74,6 +77,7 @@ function CidadeDetalhesContent() {
 
     const [
       resultadoCidade,
+      resultadoCidadeVinculo,
       resultadoBairros,
     ] = await Promise.all([
       supabase
@@ -92,9 +96,16 @@ function CidadeDetalhesContent() {
         .maybeSingle(),
 
       supabase
+        .from("cidades")
+        .select("id, congregacao_id")
+        .eq("id", cidadeId)
+        .maybeSingle(),
+
+      supabase
         .from("bairros")
         .select(`
           id,
+          congregacao_id,
           cidade_id,
           nome,
           ativo
@@ -129,6 +140,12 @@ function CidadeDetalhesContent() {
       return;
     }
 
+    if (resultadoCidadeVinculo.error) {
+      console.error(resultadoCidadeVinculo.error);
+      alert("Não foi possível validar a congregação da cidade.");
+      return;
+    }
+
     setCidade(
       resultadoCidade.data as
         | CidadeResumo
@@ -138,6 +155,10 @@ function CidadeDetalhesContent() {
     setBairros(
       (resultadoBairros.data ??
         []) as BairroAdmin[]
+    );
+
+    setCidadeCongregacaoId(
+      resultadoCidadeVinculo.data?.congregacao_id ?? null
     );
   }
 
@@ -377,6 +398,7 @@ function CidadeDetalhesContent() {
       <BairroDialog
         aberto={bairroDialogAberto}
         cidadeId={cidadeId}
+        congregacaoId={cidadeCongregacaoId}
         cidadeNome={
           cidade?.nome ?? ""
         }
