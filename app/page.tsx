@@ -2,8 +2,11 @@ import { supabase } from "@/lib/supabase";
 import CongregacaoCard from "@/components/cards/CongregacaoCard";
 import { Search, RefreshCw } from "lucide-react";
 import { APP_VERSION } from "@/lib/version";
+import { connection } from "next/server";
 
 export default async function Home() {
+  await connection();
+
   const { data: congregacoes, error } = await supabase
     .from("v_congregacoes_resumo")
     .select("*")
