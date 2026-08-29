@@ -6,6 +6,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/lib/supabase";
 import StatusEndereco from "@/components/enderecos/StatusEndereco";
 import { montarMensagemEnderecos } from "@/lib/endereco";
+import { dataAtualSaoPaulo } from "@/lib/status";
 
 type Status = "visitado" | "nao_atendeu" | "nao_visitado" | "novo";
 
@@ -88,7 +89,7 @@ export default function ListaEnderecosSelecionavel({
 
     if (!confirmar) return;
 
-    const hoje = new Date().toISOString().split("T")[0];
+    const hoje = dataAtualSaoPaulo();
 
     const dados =
       status === "visitado" ? { status, ultima_visita: hoje } : { status };

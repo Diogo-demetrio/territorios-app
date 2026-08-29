@@ -43,3 +43,17 @@ export function normalizarStatus(status?: string | null): StatusEndereco {
 
   return "nao_visitado";
 }
+
+export function dataAtualSaoPaulo() {
+  const partes = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+
+  const valor = (tipo: Intl.DateTimeFormatPartTypes) =>
+    partes.find((parte) => parte.type === tipo)?.value ?? "";
+
+  return `${valor("year")}-${valor("month")}-${valor("day")}`;
+}

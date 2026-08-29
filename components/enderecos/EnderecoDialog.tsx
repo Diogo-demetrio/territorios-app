@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { MapPin, X } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
+import { dataAtualSaoPaulo } from "@/lib/status";
 
 type Cidade = {
   id: number;
@@ -42,6 +43,7 @@ export type EnderecoEdicao = {
   longitude: number | null;
   observacoes: string | null;
   status: string | null;
+  ultima_visita: string | null;
   ativo: boolean | null;
 };
 
@@ -627,6 +629,10 @@ export default function EnderecoDialog({
           observacoes.trim() || null,
 
         status,
+
+        ...(status === "visitado" && endereco?.status !== "visitado"
+          ? { ultima_visita: dataAtualSaoPaulo() }
+          : {}),
       };
 
       if (editando && endereco) {
