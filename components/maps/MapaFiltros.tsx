@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import MapaClient from "@/components/maps/MapaClient";
+import type { LimiteCongregacao } from "@/components/maps/types";
 
 export type EnderecoMapa = {
   id: number;
@@ -30,14 +31,19 @@ export type EnderecoMapa = {
 
 export default function MapaFiltros({
   enderecos,
+  limites,
+  podeVerLimites,
 }: {
   enderecos: EnderecoMapa[];
+  limites: LimiteCongregacao[];
+  podeVerLimites: boolean;
 }) {
   const [cidade, setCidade] = useState("todos");
   const [bairro, setBairro] = useState("todos");
   const [territorio, setTerritorio] = useState("todos");
   const [status, setStatus] = useState("todos");
   const [somenteDuplicados, setSomenteDuplicados] = useState(false);
+  const [limitesSelecionados, setLimitesSelecionados] = useState<number[]>([]);
 
   /*
    * Proteção adicional:
@@ -192,6 +198,31 @@ export default function MapaFiltros({
 
   const totalDuplicados = duplicadosPorId.size;
 
+  const limitesPorIdioma = useMemo(() => {
+    const grupos = new Map<string, LimiteCongregacao[]>();
+
+    limites.forEach((limite) => {
+      const grupo = grupos.get(limite.idioma) ?? [];
+      grupo.push(limite);
+      grupos.set(limite.idioma, grupo);
+    });
+
+    return Array.from(grupos.entries());
+  }, [limites]);
+
+  const limitesVisiveis = useMemo(
+    () => limites.filter((limite) => limitesSelecionados.includes(limite.id)),
+    [limites, limitesSelecionados]
+  );
+
+  function alternarLimite(id: number) {
+    setLimitesSelecionados((atuais) =>
+      atuais.includes(id)
+        ? atuais.filter((limiteId) => limiteId !== id)
+        : [...atuais, id]
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
@@ -309,11 +340,62 @@ export default function MapaFiltros({
         </label>
       </div>
 
+      {podeVerLimites && limitesPorIdioma.length > 0 && (
+        <details className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+          <summary className="cursor-pointer list-none px-4 py-4 text-sm font-semibold text-slate-700">
+            <span className="flex items-center justify-between gap-3">
+              Limites de congregações
+              <span className="text-xs font-normal text-slate-500">
+                {limitesSelecionados.length} selecionado(s) ▾
+              </span>
+            </span>
+          </summary>
+
+          <div className="space-y-4 border-t border-slate-100 px-4 py-4">
+            <p className="text-xs text-slate-500">
+              Camada apenas visual. A seleção não altera os endereços.
+            </p>
+
+            {limitesPorIdioma.map(([idioma, opcoes]) => (
+              <fieldset key={idioma}>
+                <legend className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  {idioma}
+                </legend>
+
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {opcoes.map((limite) => (
+                    <label
+                      key={limite.id}
+                      className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={limitesSelecionados.includes(limite.id)}
+                        onChange={() => alternarLimite(limite.id)}
+                        className="h-4 w-4 accent-violet-700"
+                      />
+                      <span
+                        className="h-3 w-3 shrink-0 rounded-full"
+                        style={{ backgroundColor: limite.cor }}
+                      />
+                      <span className="font-medium text-slate-700">
+                        {limite.nome}
+                        {limite.numero ? ` · ${limite.numero}` : ""}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            ))}
+          </div>
+        </details>
+      )}
+
       <p className="text-sm text-slate-500">
         📍 {filtrados.length} endereços encontrados
       </p>
 
-      <MapaClient enderecos={filtrados} />
+      <MapaClient enderecos={filtrados} limites={limitesVisiveis} />
     </div>
   );
 }

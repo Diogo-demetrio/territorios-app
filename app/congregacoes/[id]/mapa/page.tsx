@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { ArrowLeft, Search, RefreshCw } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import MapaFiltros from "@/components/maps/MapaFiltros";
 import type { EnderecoMapa } from "@/components/maps/MapaFiltros";
+import type { LimiteCongregacao } from "@/components/maps/types";
 
 export default async function MapaPage({
   params,
@@ -11,6 +13,10 @@ export default async function MapaPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const supabaseServidor = await createClient();
+  const {
+    data: { user },
+  } = await supabaseServidor.auth.getUser();
 
   const { data: congregacao } = await supabase
     .from("congregacoes")
@@ -52,6 +58,23 @@ export default async function MapaPage({
       : endereco.territorios,
   })) as EnderecoMapa[];
 
+  const { data: limites } = user
+    ? await supabaseServidor
+        .from("limites_congregacoes")
+        .select(`
+          id,
+          nome,
+          numero,
+          idioma,
+          cor,
+          atualizado_origem_em,
+          coordenadas
+        `)
+        .eq("ativo", true)
+        .order("idioma")
+        .order("nome")
+    : { data: [] };
+
   return (
     <main className="min-h-screen bg-slate-100 pb-24">
       <header className="sticky top-0 z-20 bg-violet-700 px-4 py-4 text-white shadow">
@@ -70,7 +93,11 @@ export default async function MapaPage({
       </header>
 
       <section className="mx-auto max-w-3xl p-4">
-        <MapaFiltros enderecos={enderecosMapa} />
+        <MapaFiltros
+          enderecos={enderecosMapa}
+          limites={(limites ?? []) as LimiteCongregacao[]}
+          podeVerLimites={Boolean(user)}
+        />
       </section>
 
       <MobileBottomNav congregacaoId={id} />

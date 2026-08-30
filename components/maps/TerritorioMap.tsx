@@ -5,7 +5,9 @@ import {
   MapContainer,
   TileLayer,
   CircleMarker,
+  Polygon,
   Popup,
+  Tooltip,
   useMap,
 } from "react-leaflet";
 import L from "leaflet";
@@ -19,9 +21,11 @@ import {
 
 import { STATUS_ENDERECO, normalizarStatus } from "@/lib/status";
 import type { EnderecoMapa } from "@/components/maps/MapaFiltros";
+import type { LimiteCongregacao } from "@/components/maps/types";
 
 type Props = {
   enderecos: EnderecoMapa[];
+  limites: LimiteCongregacao[];
 };
 
 type PontoMapa = EnderecoMapa & { coords: [number, number] };
@@ -58,7 +62,7 @@ function AjustarZoom({ pontos }: { pontos: PontoMapa[] }) {
   return null;
 }
 
-export default function TerritorioMap({ enderecos }: Props) {
+export default function TerritorioMap({ enderecos, limites }: Props) {
   const pontos = enderecos
     .map((e) => ({ ...e, coords: coordenadas(e) }))
     .filter((e): e is PontoMapa => e.coords !== null);
@@ -74,6 +78,26 @@ export default function TerritorioMap({ enderecos }: Props) {
         />
 
         <AjustarZoom pontos={pontos} />
+
+        {limites.map((limite) => (
+          <Polygon
+            key={limite.id}
+            positions={limite.coordenadas}
+            pathOptions={{
+              color: limite.cor,
+              weight: 3,
+              fillColor: limite.cor,
+              fillOpacity: 0.12,
+            }}
+          >
+            <Tooltip sticky>
+              <strong>{limite.nome}</strong>
+              <br />
+              {limite.idioma}
+              {limite.numero ? ` · Nº ${limite.numero}` : ""}
+            </Tooltip>
+          </Polygon>
+        ))}
 
         {pontos.map((endereco) => {
           const mapsUrl =

@@ -8,6 +8,7 @@ import {
   Building2,
   Home,
   Layers3,
+  LandPlot,
   Lock,
   LogOut,
   MapPinned,
@@ -20,6 +21,14 @@ import LoginModal from "@/components/auth/LoginModal";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 const modulos = [
+  {
+    titulo: "Limites de congregações",
+    descricao: "Importar territórios macro em KML",
+    href: "/configuracoes/limites-congregacoes",
+    icone: LandPlot,
+    somenteAdmin: true,
+    somenteSuperAdmin: true,
+  },
   {
     titulo: "Usuários",
     descricao: "Administradores e suportes",
@@ -91,6 +100,10 @@ function ConfiguracoesContent() {
 
   const modulosVisiveis = modulos.filter((modulo) => {
     if (!usuario) return false;
+
+    if (modulo.somenteSuperAdmin) {
+      return usuario.papel === "superadmin";
+    }
 
     if (modulo.somenteAdmin) {
       return isAdmin;
