@@ -270,7 +270,7 @@ export default function UsuariosAdmin() {
 
   if (carregando) {
     return (
-      <div className="mt-4 rounded-3xl bg-white p-4 text-sm text-slate-500 shadow-sm ring-1 ring-slate-200">
+      <div className="rounded-[20px] border border-[#DDE2DB] bg-white p-4 text-sm text-[#6F7872] shadow-[0_5px_20px_rgba(23,33,28,0.05)]">
         Carregando usuários...
       </div>
     );
@@ -278,7 +278,7 @@ export default function UsuariosAdmin() {
 
   if (!permissoes) {
     return (
-      <div className="mt-4 rounded-3xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+      <div className="rounded-[16px] border border-[#B84A4A]/25 bg-[#B84A4A]/8 p-4 text-sm text-[#8F3636]">
         Não foi possível validar suas permissões.
       </div>
     );
@@ -286,19 +286,19 @@ export default function UsuariosAdmin() {
 
   return (
     <>
-      <section className="mt-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+      <section className="rounded-[20px] border border-[#DDE2DB] bg-white p-4 shadow-[0_5px_20px_rgba(23,33,28,0.05)] sm:p-5">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-violet-100 text-violet-700">
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#DCE8D5] text-[#123D2C]">
               <Users className="h-5 w-5" />
             </div>
 
             <div>
-              <h2 className="font-bold text-slate-900">
+              <h2 className="font-bold text-[#17211C]">
                 Usuários
               </h2>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#6F7872]">
                 Administradores e suportes do aplicativo.
               </p>
             </div>
@@ -307,7 +307,7 @@ export default function UsuariosAdmin() {
           <button
             type="button"
             onClick={carregarDados}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-slate-200 bg-white text-slate-600"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#DDE2DB] bg-white text-[#123D2C] transition hover:border-[#8FAF72] hover:bg-[#F4F5F0] active:bg-[#DCE8D5]"
             aria-label="Atualizar usuários"
           >
             <RefreshCw className="h-4 w-4" />
@@ -317,15 +317,15 @@ export default function UsuariosAdmin() {
         <button
           type="button"
           onClick={abrirNovoUsuario}
-          className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-700 py-3 text-sm font-semibold text-white"
+          className="mb-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-[#123D2C] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0B2B20] active:opacity-90"
         >
           <Plus className="h-4 w-4" />
           Novo usuário
         </button>
 
         <div className="mb-4 space-y-3">
-          <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-3">
-            <Search className="h-4 w-4 shrink-0 text-slate-400" />
+          <div className="flex h-12 items-center gap-2 rounded-[14px] border border-[#DDE2DB] bg-white px-3 transition focus-within:border-[#2F6B4F] focus-within:ring-2 focus-within:ring-[#DCE8D5]">
+            <Search className="h-4 w-4 shrink-0 text-[#6F7872]" />
 
             <input
               value={busca}
@@ -335,11 +335,11 @@ export default function UsuariosAdmin() {
                 )
               }
               placeholder="Buscar por nome, e-mail ou congregação"
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+              className="min-w-0 flex-1 bg-transparent text-sm text-[#17211C] outline-none placeholder:text-[#6F7872]"
             />
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-slate-600">
+          <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl px-1 text-sm text-[#6F7872]">
             <input
               type="checkbox"
               checked={mostrarInativos}
@@ -348,20 +348,20 @@ export default function UsuariosAdmin() {
                   event.target.checked
                 )
               }
-              className="h-4 w-4"
+              className="h-4 w-4 accent-[#123D2C]"
             />
 
             Mostrar usuários inativos
           </label>
 
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-[#6F7872]">
             {usuariosFiltrados.length} usuário(s) encontrado(s).
           </p>
         </div>
 
         {usuariosFiltrados.length ===
         0 ? (
-          <div className="rounded-2xl bg-slate-50 p-4 text-center text-sm text-slate-500">
+          <div className="rounded-[16px] bg-[#F4F5F0] p-4 text-center text-sm text-[#6F7872]">
             Nenhum usuário encontrado.
           </div>
         ) : (

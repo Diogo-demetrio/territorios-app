@@ -135,22 +135,22 @@ export default function LimitesCongregacoesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 p-4 pb-24">
-      <div className="mx-auto max-w-3xl">
-        <header className="mb-4 flex items-center gap-3">
+    <main className="min-h-screen bg-[#F4F5F0] px-4 py-5 pb-24 [font-family:var(--font-geist-sans),Arial,sans-serif] text-[#17211C] sm:py-7">
+      <div className="mx-auto max-w-[820px]">
+        <header className="mb-5 flex items-center gap-3">
           <Link
             href="/configuracoes"
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-slate-700 shadow-sm ring-1 ring-slate-200"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#DDE2DB] bg-white text-[#123D2C] shadow-[0_3px_12px_rgba(23,33,28,0.05)] transition hover:border-[#8FAF72] active:bg-[#F4F5F0]"
             aria-label="Voltar"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2F6B4F]">
               Configurações
             </p>
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold leading-tight text-[#17211C] sm:text-3xl">
               Limites de congregações
             </h1>
           </div>
@@ -159,25 +159,25 @@ export default function LimitesCongregacoesPage() {
         {carregando ? (
           <Aviso texto="Verificando acesso..." />
         ) : !usuario || !isSuperAdmin ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="rounded-[16px] border border-[#B84A4A]/25 bg-[#B84A4A]/8 p-4 text-sm text-[#8F3636]">
             Somente o superadministrador pode importar limites de congregações.
           </div>
         ) : (
           <div className="space-y-4">
-            <section className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+            <section className="rounded-[20px] border border-[#DDE2DB] bg-white p-4 shadow-[0_5px_20px_rgba(23,33,28,0.05)] sm:p-5">
               <div className="mb-4 flex items-start gap-3">
-                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-violet-100 text-violet-700">
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#DCE8D5] text-[#123D2C]">
                   <FileUp className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-slate-900">Importar KML</h2>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <h2 className="font-bold text-[#17211C]">Importar KML</h2>
+                  <p className="mt-1 text-sm text-[#6F7872]">
                     Use o arquivo do território macro baixado do JW Hub.
                   </p>
                 </div>
               </div>
 
-              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-violet-700 px-4 py-3 text-sm font-semibold text-white hover:bg-violet-800">
+              <label className="flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-[14px] bg-[#123D2C] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0B2B20] active:opacity-90">
                 <FileUp className="h-4 w-4" />
                 Selecionar arquivo KML
                 <input
@@ -188,31 +188,31 @@ export default function LimitesCongregacoesPage() {
                 />
               </label>
 
-              <p className="mt-3 text-xs text-slate-500">
+              <p className="mt-3 text-xs leading-relaxed text-[#6F7872]">
                 O arquivo precisa representar uma congregação e conter um único
                 polígono macro.
               </p>
             </section>
 
             {erro && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              <div className="rounded-[16px] border border-[#B84A4A]/25 bg-[#B84A4A]/8 p-4 text-sm text-[#8F3636]">
                 {erro}
               </div>
             )}
 
             {mensagem && (
-              <div className="flex items-center gap-2 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+              <div className="flex items-center gap-2 rounded-[16px] border border-[#2F6B4F]/20 bg-[#DCE8D5]/60 p-4 text-sm text-[#24543F]">
                 <CheckCircle2 className="h-5 w-5 shrink-0" />
                 {mensagem}
               </div>
             )}
 
             {previa && (
-              <section className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-violet-200">
-                <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">
+              <section className="rounded-[20px] border border-[#8FAF72] bg-white p-4 shadow-[0_5px_20px_rgba(23,33,28,0.05)] sm:p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2F6B4F]">
                   Confirmar importação
                 </p>
-                <h2 className="mt-1 text-xl font-bold text-slate-900">
+                <h2 className="mt-1 text-xl font-bold text-[#17211C]">
                   {previa.nome}
                 </h2>
 
@@ -232,7 +232,7 @@ export default function LimitesCongregacoesPage() {
                 </dl>
 
                 {limites.some((limite) => limite.numero === previa.numero) && (
-                  <p className="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-800 ring-1 ring-amber-100">
+                  <p className="mt-4 rounded-xl border border-[#B78335]/20 bg-[#B78335]/10 p-3 text-sm text-[#805A23]">
                     Este número já está cadastrado. Ao confirmar, o polígono
                     existente será atualizado.
                   </p>
@@ -243,7 +243,7 @@ export default function LimitesCongregacoesPage() {
                     type="button"
                     onClick={() => setPrevia(null)}
                     disabled={salvando}
-                    className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 disabled:opacity-50"
+                    className="min-h-12 rounded-[14px] border border-[#DDE2DB] bg-white px-4 py-3 text-sm font-semibold text-[#17211C] transition hover:bg-[#F4F5F0] disabled:opacity-50"
                   >
                     Cancelar
                   </button>
@@ -251,7 +251,7 @@ export default function LimitesCongregacoesPage() {
                     type="button"
                     onClick={importar}
                     disabled={salvando}
-                    className="flex items-center justify-center gap-2 rounded-xl bg-violet-700 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                    className="flex min-h-12 items-center justify-center gap-2 rounded-[14px] bg-[#123D2C] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0B2B20] disabled:opacity-50"
                   >
                     {salvando && <Loader2 className="h-4 w-4 animate-spin" />}
                     {salvando ? "Importando..." : "Confirmar"}
@@ -260,16 +260,21 @@ export default function LimitesCongregacoesPage() {
               </section>
             )}
 
-            <section className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+            <section className="rounded-[20px] border border-[#DDE2DB] bg-white p-4 shadow-[0_5px_20px_rgba(23,33,28,0.05)] sm:p-5">
               <div className="mb-4 flex items-center gap-3">
-                <LandPlot className="h-5 w-5 text-violet-700" />
-                <h2 className="font-bold text-slate-900">Limites cadastrados</h2>
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#DCE8D5] text-[#123D2C]">
+                  <LandPlot className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="font-bold text-[#17211C]">Limites cadastrados</h2>
+                  <p className="text-xs text-[#6F7872]">Polígonos disponíveis para visualização no mapa</p>
+                </div>
               </div>
 
               {carregandoLista ? (
                 <Aviso texto="Carregando limites..." />
               ) : limites.length === 0 ? (
-                <p className="text-sm text-slate-500">
+                <p className="rounded-xl bg-[#F4F5F0] p-4 text-sm text-[#6F7872]">
                   Nenhum limite cadastrado.
                 </p>
               ) : (
@@ -277,18 +282,18 @@ export default function LimitesCongregacoesPage() {
                   {limites.map((limite) => (
                     <div
                       key={limite.id}
-                      className="flex items-center gap-3 rounded-2xl border border-slate-200 p-3"
+                      className="flex min-h-[72px] items-center gap-3 rounded-[16px] border border-[#DDE2DB] bg-white p-3 transition hover:border-[#8FAF72]"
                     >
                       <span
-                        className="h-4 w-4 shrink-0 rounded-full"
+                        className="h-4 w-4 shrink-0 rounded-full ring-4 ring-[#F4F5F0]"
                         style={{ backgroundColor: limite.cor }}
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold text-slate-800">
+                        <p className="truncate font-semibold text-[#17211C]">
                           {limite.nome}
                           {limite.numero ? ` · ${limite.numero}` : ""}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="mt-0.5 text-xs text-[#6F7872]">
                           {limite.idioma} · {limite.coordenadas.length} pontos
                         </p>
                       </div>
@@ -433,7 +438,7 @@ function formatarData(data: string | null) {
 
 function Aviso({ texto }: { texto: string }) {
   return (
-    <div className="rounded-2xl bg-white p-4 text-sm text-slate-500">
+    <div className="rounded-[16px] border border-[#DDE2DB] bg-white p-4 text-sm text-[#6F7872]">
       {texto}
     </div>
   );
@@ -442,10 +447,10 @@ function Aviso({ texto }: { texto: string }) {
 function Dado({ label, valor }: { label: string; valor: string }) {
   return (
     <div>
-      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+      <dt className="text-xs font-semibold uppercase tracking-wide text-[#6F7872]">
         {label}
       </dt>
-      <dd className="mt-1 break-words font-medium text-slate-700">{valor}</dd>
+      <dd className="mt-1 break-words font-medium text-[#17211C]">{valor}</dd>
     </div>
   );
 }

@@ -53,8 +53,8 @@ export default async function Territorio({
 
   if (erroTerritorio || !territorioResumo) {
     return (
-      <main className="min-h-screen bg-slate-100 p-4">
-        <div className="mx-auto max-w-3xl rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+      <main className="min-h-screen bg-[#F4F5F0] p-4 [font-family:var(--font-geist-sans)]">
+        <div className="mx-auto max-w-[760px] rounded-[18px] border border-[#B84A4A]/20 bg-[#B84A4A]/8 p-4 text-sm text-[#B84A4A]">
           Não foi possível carregar este território.
         </div>
       </main>
@@ -116,38 +116,53 @@ export default async function Territorio({
     total > 0 ? Math.round((visitados / total) * 100) : 0;
 
   return (
-    <main className="min-h-screen bg-slate-100 pb-24">
-      <header className="sticky top-0 z-20 bg-violet-700 px-4 py-4 text-white shadow">
-        <div className="mx-auto flex max-w-3xl items-center gap-4">
+    <main className="min-h-screen bg-[#F4F5F0] pb-28 text-[#17211C] [font-family:var(--font-geist-sans)]">
+      <header className="sticky top-0 z-20 bg-[#123D2C] px-4 py-4 text-white shadow-[0_5px_20px_rgba(11,43,32,0.16)] sm:py-5">
+        <div className="mx-auto flex max-w-[760px] items-center gap-3">
           <Link
             href={`/congregacoes/${territorio.congregacao_id}/territorios`}
-            className="rounded-full p-2 hover:bg-white/10"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[#DCE8D5] transition hover:bg-white/10 active:scale-95 active:bg-white/15"
+            aria-label="Voltar"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
 
-          <h1 className="flex-1 truncate text-base font-semibold">
+          <h1 className="min-w-0 flex-1 truncate text-base font-semibold tracking-[-0.01em] sm:text-lg">
             {territorio.nome}
           </h1>
 
-          <Search className="h-5 w-5" />
-          <RefreshCw className="h-5 w-5" />
+          <div className="flex shrink-0 items-center gap-1">
+            <button
+              type="button"
+              aria-label="Buscar endereço"
+              className="grid h-10 w-10 place-items-center rounded-xl text-[#DCE8D5] transition hover:bg-white/10 active:scale-95 active:bg-white/15"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Atualizar território"
+              className="grid h-10 w-10 place-items-center rounded-xl text-[#DCE8D5] transition hover:bg-white/10 active:scale-95 active:bg-white/15"
+            >
+              <RefreshCw className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </header>
 
-      <section className="mx-auto max-w-3xl p-4">
-        <div className="mb-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+      <section className="mx-auto max-w-[760px] px-4 py-5 sm:px-6 sm:py-6">
+        <div className="mb-4 rounded-[20px] border border-[#DDE2DB]/90 bg-white p-4 shadow-[0_5px_20px_rgba(18,61,44,0.05)] sm:p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2F6B4F]">
                 Território
               </p>
 
-              <h2 className="mt-1 text-xl font-bold text-slate-900">
+              <h2 className="mt-1.5 text-xl font-semibold tracking-[-0.02em] text-[#17211C] sm:text-2xl">
                 {territorio.nome}
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-[#6F7872]">
                 {territorio.cidades_presentes ||
                   territorio.cidade_referencia ||
                   "Cidade não informada"}
@@ -156,28 +171,28 @@ export default async function Territorio({
               </p>
             </div>
 
-            <span className="shrink-0 rounded-full bg-violet-100 px-3 py-1 text-sm font-bold text-violet-700">
+            <span className="shrink-0 rounded-full bg-[#DCE8D5] px-3 py-1.5 text-xs font-semibold text-[#123D2C] sm:text-sm">
               {total} end.
             </span>
           </div>
 
-          <div className="mt-4 rounded-2xl bg-slate-50 p-3">
+          <div className="mt-4 rounded-[14px] bg-[#F4F5F0] p-3.5">
             <div className="flex items-start gap-2">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-violet-700" />
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#2F6B4F]" />
 
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-slate-500">
+                <p className="text-xs font-semibold text-[#6F7872]">
                   Bairros presentes
                 </p>
 
-                <p className="mt-1 text-sm leading-relaxed text-slate-700">
+                <p className="mt-1 text-sm leading-relaxed text-[#17211C]">
                   {territorio.bairros_presentes ||
                     territorio.bairro_referencia ||
                     "Nenhum bairro informado"}
                 </p>
 
                 {territorio.total_bairros > 1 && (
-                  <p className="mt-1 text-xs font-semibold text-violet-700">
+                  <p className="mt-1 text-xs font-semibold text-[#2F6B4F]">
                     {territorio.total_bairros} bairros neste território
                   </p>
                 )}
@@ -208,14 +223,14 @@ export default async function Territorio({
           </div>
 
           <div className="mt-4">
-            <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
+            <div className="mb-2 flex items-center justify-between text-xs text-[#6F7872]">
               <span>Progresso do território</span>
-              <span>{progresso}% visitado</span>
+              <span className="font-semibold text-[#2F6B4F]">{progresso}%</span>
             </div>
 
-            <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-2 overflow-hidden rounded-full bg-[#DCE8D5]/70">
               <div
-                className="h-full rounded-full bg-green-500 transition-all"
+                className="h-full rounded-full bg-[#2F6B4F] transition-all"
                 style={{ width: `${progresso}%` }}
               />
             </div>
@@ -223,7 +238,7 @@ export default async function Territorio({
         </div>
 
         {erroEnderecos && (
-          <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="mb-4 rounded-[18px] border border-[#B84A4A]/20 bg-[#B84A4A]/8 p-4 text-sm text-[#B84A4A]">
             Não foi possível carregar os endereços.
           </div>
         )}
@@ -241,7 +256,11 @@ export default async function Territorio({
         />
       </section>
 
-      <MobileBottomNav congregacaoId={String(territorio.congregacao_id)} />
+      <MobileBottomNav
+        congregacaoId={String(territorio.congregacao_id)}
+        variant="green"
+        activeItem="territorios"
+      />
     </main>
   );
 }

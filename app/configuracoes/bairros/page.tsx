@@ -207,59 +207,59 @@ function BairrosContent() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 p-4 pb-24">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-4 flex items-center gap-3">
+    <main className="min-h-screen bg-[#F4F5F0] px-4 py-5 pb-24 [font-family:var(--font-geist-sans),Arial,sans-serif] text-[#17211C] sm:py-7">
+      <div className="mx-auto max-w-[900px]">
+        <header className="mb-5 flex items-center gap-3">
           <Link
             href={rotaVoltar}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-slate-700 shadow-sm ring-1 ring-slate-200"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#DDE2DB] bg-white text-[#123D2C] shadow-[0_3px_12px_rgba(23,33,28,0.05)] transition hover:border-[#8FAF72] active:bg-[#F4F5F0]"
             aria-label="Voltar"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
 
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2F6B4F]">
               Configurações
             </p>
-            <h1 className="text-2xl font-bold text-slate-900">Bairros</h1>
+            <h1 className="text-2xl font-bold text-[#17211C] sm:text-3xl">Bairros</h1>
           </div>
 
           <button
             type="button"
             onClick={carregarDados}
-            className="grid h-10 w-10 place-items-center rounded-full bg-white text-slate-600 shadow-sm ring-1 ring-slate-200"
+            className="grid h-11 w-11 place-items-center rounded-full border border-[#DDE2DB] bg-white text-[#123D2C] shadow-[0_3px_12px_rgba(23,33,28,0.05)] transition hover:border-[#8FAF72] hover:bg-[#F4F5F0] active:bg-[#DCE8D5]"
             aria-label="Atualizar bairros"
           >
             <RefreshCw className="h-4 w-4" />
           </button>
-        </div>
+        </header>
 
         <button
           type="button"
           onClick={novoBairro}
           disabled={!cidades.some((cidade) => cidade.ativo)}
-          className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-700 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="mb-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-[#123D2C] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0B2B20] active:opacity-90 disabled:cursor-not-allowed disabled:bg-[#AAB3AC]"
         >
           <Plus className="h-4 w-4" />
           Novo bairro
         </button>
 
-        <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-          <p className="mb-3 text-sm font-semibold text-slate-700">
+        <section className="mb-4 rounded-[18px] border border-[#DDE2DB] bg-white p-3 shadow-[0_4px_16px_rgba(23,33,28,0.04)] sm:p-4">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6F7872]">
             Filtrar por status
           </p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-1 rounded-[14px] bg-[#F4F5F0] p-1">
             {(["ativos", "inativos", "todos"] as FiltroStatus[]).map(
               (opcao) => (
                 <button
                   key={opcao}
                   type="button"
                   onClick={() => setFiltro(opcao)}
-                  className={`rounded-xl px-3 py-2.5 text-sm font-semibold capitalize transition ${
+                  className={`min-h-10 rounded-[11px] px-2 py-2 text-sm font-semibold capitalize transition ${
                     filtro === opcao
-                      ? "bg-violet-700 text-white"
-                      : "bg-slate-100 text-slate-600"
+                      ? "bg-[#123D2C] text-white shadow-sm"
+                      : "bg-transparent text-[#6F7872] hover:bg-white"
                   }`}
                 >
                   {opcao}
@@ -267,17 +267,17 @@ function BairrosContent() {
               )
             )}
           </div>
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-2 px-1 text-xs text-[#6F7872]">
             {bairrosFiltrados.length} bairro(s) encontrado(s).
           </p>
         </section>
 
         {carregandoDados ? (
-          <div className="rounded-3xl bg-white p-5 text-sm text-slate-500 shadow-sm ring-1 ring-slate-200">
+          <div className="rounded-[16px] border border-[#DDE2DB] bg-white p-5 text-sm text-[#6F7872] shadow-[0_4px_16px_rgba(23,33,28,0.04)]">
             Carregando bairros...
           </div>
         ) : bairrosFiltrados.length === 0 ? (
-          <div className="rounded-3xl bg-white p-5 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-200">
+          <div className="rounded-[16px] border border-[#DDE2DB] bg-white p-5 text-center text-sm text-[#6F7872] shadow-[0_4px_16px_rgba(23,33,28,0.04)]">
             Nenhum bairro encontrado neste filtro.
           </div>
         ) : (
@@ -287,49 +287,43 @@ function BairrosContent() {
               return (
                 <article
                   key={bairro.id}
-                  className={`rounded-3xl bg-white p-4 shadow-sm ring-1 ${
-                    bairro.ativo ? "ring-slate-200" : "ring-red-200"
-                  }`}
+                  className="rounded-[20px] border border-[#DDE2DB] bg-white p-4 shadow-[0_4px_16px_rgba(23,33,28,0.04)]"
                 >
                   <div className="flex items-start gap-3">
                     <div
-                      className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${
-                        bairro.ativo
-                          ? "bg-violet-100 text-violet-700"
-                          : "bg-slate-100 text-slate-500"
-                      }`}
+                      className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#DCE8D5] text-[#123D2C]"
                     >
                       <MapPinned className="h-5 w-5" />
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="font-bold text-slate-900">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <h2 className="font-semibold text-[#17211C]">
                           {bairro.nome}
                         </h2>
                         <span
                           className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                             bairro.ativo
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
+                              ? "bg-[#DCE8D5] text-[#24543F]"
+                              : "bg-[#E9ECE5] text-[#59635D]"
                           }`}
                         >
                           {bairro.ativo ? "Ativo" : "Inativo"}
                         </span>
                       </div>
 
-                      <p className="mt-1 flex items-center gap-1 text-sm text-slate-500">
-                        <Building2 className="h-4 w-4" />
+                      <p className="mt-1 flex items-center gap-1.5 text-sm text-[#6F7872]">
+                        <Building2 className="h-4 w-4 text-[#2F6B4F]" />
                         {cidade?.nome ?? "Cidade não encontrada"}
                       </p>
                     </div>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
+                  <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[#DDE2DB] pt-3">
                     <button
                       type="button"
                       onClick={() => editarBairro(bairro)}
-                      className="flex items-center justify-center gap-2 rounded-xl bg-violet-50 py-2.5 text-sm font-semibold text-violet-700"
+                      className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#DDE2DB] bg-[#DCE8D5]/50 py-2.5 text-sm font-semibold text-[#123D2C] transition hover:border-[#8FAF72] active:bg-[#DCE8D5]"
                     >
                       <Edit className="h-4 w-4" />
                       Editar
@@ -338,10 +332,10 @@ function BairrosContent() {
                       type="button"
                       onClick={() => alternarAtivo(bairro)}
                       disabled={alterandoId === bairro.id}
-                      className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold disabled:opacity-60 ${
+                      className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-semibold transition disabled:opacity-60 ${
                         bairro.ativo
-                          ? "bg-red-50 text-red-700"
-                          : "bg-green-50 text-green-700"
+                          ? "border-[#B84A4A]/20 bg-[#B84A4A]/8 text-[#9B3F3F] hover:border-[#B84A4A]/35"
+                          : "border-[#8FAF72]/40 bg-[#DCE8D5]/60 text-[#123D2C] hover:border-[#8FAF72]"
                       }`}
                     >
                       <Power className="h-4 w-4" />
@@ -349,7 +343,7 @@ function BairrosContent() {
                         ? "Alterando..."
                         : bairro.ativo
                           ? "Inativar"
-                          : "Reativar"}
+                          : "Ativar"}
                     </button>
                   </div>
                 </article>
@@ -378,12 +372,12 @@ function Mensagem({
   erro?: boolean;
 }) {
   return (
-    <main className="min-h-screen bg-slate-100 p-4">
+    <main className="min-h-screen bg-[#F4F5F0] p-4 [font-family:var(--font-geist-sans),Arial,sans-serif]">
       <div
-        className={`mx-auto max-w-3xl rounded-2xl p-4 text-sm ${
+        className={`mx-auto max-w-[900px] rounded-[16px] p-4 text-sm ${
           erro
-            ? "border border-red-200 bg-red-50 text-red-700"
-            : "bg-white text-slate-500"
+            ? "border border-[#B84A4A]/25 bg-[#B84A4A]/8 text-[#8F3636]"
+            : "border border-[#DDE2DB] bg-white text-[#6F7872]"
         }`}
       >
         {children}

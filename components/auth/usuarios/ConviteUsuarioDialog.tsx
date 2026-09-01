@@ -91,19 +91,19 @@ export default function ConviteUsuarioDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 px-4 py-6">
-      <div className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#0B2B20]/50 px-4 py-6 [font-family:var(--font-geist-sans),Arial,sans-serif]">
+      <div className="max-h-full w-full max-w-md overflow-y-auto rounded-[24px] border border-[#DDE2DB] bg-white p-5 shadow-2xl">
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-green-700">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2F6B4F]">
               Usuário criado
             </p>
 
-            <h2 className="mt-1 text-xl font-bold text-slate-900">
+            <h2 className="mt-1 text-xl font-bold text-[#17211C]">
               Acesso criado com sucesso
             </h2>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-[#6F7872]">
               Guarde ou envie os dados agora.
             </p>
           </div>
@@ -111,16 +111,16 @@ export default function ConviteUsuarioDialog({
           <button
             type="button"
             onClick={fechar}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-slate-100"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-[#6F7872] hover:bg-[#F4F5F0]"
             aria-label="Fechar"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <section className="rounded-2xl bg-slate-50 p-4">
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <Mail className="h-4 w-4 text-slate-400" />
+        <section className="rounded-[16px] bg-[#F4F5F0] p-4">
+          <div className="flex items-center gap-2 text-sm text-[#6F7872]">
+            <Mail className="h-4 w-4 text-[#2F6B4F]" />
 
             <span className="truncate">
               {resultado.usuario.email}
@@ -160,17 +160,17 @@ export default function ConviteUsuarioDialog({
           </div>
         </section>
 
-        <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-3 text-xs leading-relaxed text-red-700">
+        <div className="mt-4 rounded-[16px] border border-[#B84A4A]/20 bg-[#B84A4A]/8 p-3 text-xs leading-relaxed text-[#8F3636]">
           Esta senha será exibida somente agora. Ela não será salva
           em texto no banco de dados.
         </div>
 
         <section className="mt-4">
-          <p className="mb-2 text-sm font-semibold text-slate-700">
+          <p className="mb-2 text-sm font-semibold text-[#17211C]">
             Mensagem para WhatsApp
           </p>
 
-          <pre className="max-h-64 overflow-y-auto whitespace-pre-wrap rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">
+          <pre className="max-h-64 overflow-y-auto whitespace-pre-wrap rounded-[16px] border border-[#DDE2DB] bg-[#F4F5F0] p-3 text-xs leading-relaxed text-[#17211C]">
             {resultado.mensagemWhatsApp}
           </pre>
         </section>
@@ -184,7 +184,7 @@ export default function ConviteUsuarioDialog({
                 "mensagem"
               )
             }
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-700"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-[14px] border border-[#DDE2DB] bg-white py-3 text-sm font-semibold text-[#17211C]"
           >
             {copiouMensagem ? (
               <Check className="h-4 w-4 text-green-700" />
@@ -200,7 +200,7 @@ export default function ConviteUsuarioDialog({
           <button
             type="button"
             onClick={abrirWhatsApp}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 py-3 text-sm font-semibold text-white"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-[#2F6B4F] py-3 text-sm font-semibold text-white"
           >
             <MessageCircle className="h-4 w-4" />
             Abrir WhatsApp
@@ -210,7 +210,7 @@ export default function ConviteUsuarioDialog({
             href={resultado.urlAcesso}
             target="_blank"
             rel="noreferrer"
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-50 py-3 text-sm font-semibold text-violet-700"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-[#DCE8D5] py-3 text-sm font-semibold text-[#123D2C]"
           >
             <ExternalLink className="h-4 w-4" />
             Abrir aplicativo
@@ -219,7 +219,7 @@ export default function ConviteUsuarioDialog({
           <button
             type="button"
             onClick={fechar}
-            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white"
+            className="min-h-12 w-full rounded-[14px] bg-[#123D2C] py-3 text-sm font-semibold text-white"
           >
             Concluir
           </button>

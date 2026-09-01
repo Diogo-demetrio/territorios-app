@@ -23,38 +23,55 @@ export default async function Home() {
   }));
 
   return (
-    <main className="min-h-screen bg-slate-100">
-      <header className="sticky top-0 z-20 bg-violet-700 px-6 py-5 text-white shadow">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-semibold">
+    <main className="min-h-screen bg-[#F4F5F0] text-[#17211C]">
+      <header className="sticky top-0 z-20 bg-[#123D2C] px-4 py-5 text-white shadow-[0_6px_22px_rgba(11,43,32,0.16)] sm:py-6">
+        <div className="mx-auto flex max-w-[720px] items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <h1 className="truncate text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
               Congregações
             </h1>
 
-            <span className="rounded-md border border-violet-400/30 bg-violet-600/40 px-2 py-0.5 text-xs font-medium text-violet-100">
+            <span className="shrink-0 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-medium text-[#DCE8D5]">
               {APP_VERSION}
             </span>
           </div>
 
-          <div className="flex gap-5">
-            <Search className="h-5 w-5 cursor-pointer" />
-            <RefreshCw className="h-5 w-5 cursor-pointer" />
+          <div className="flex shrink-0 items-center gap-1.5">
+            <button
+              type="button"
+              aria-label="Buscar congregação"
+              className="grid h-10 w-10 place-items-center rounded-xl text-[#DCE8D5] transition hover:bg-white/10 active:scale-95 active:bg-white/15"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Atualizar congregações"
+              className="grid h-10 w-10 place-items-center rounded-xl text-[#DCE8D5] transition hover:bg-white/10 active:scale-95 active:bg-white/15"
+            >
+              <RefreshCw className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </header>
 
-      <section className="mx-auto max-w-3xl p-6">
-        <p className="mb-5 text-slate-500">
-          Selecione uma congregação para continuar.
-        </p>
+      <section className="mx-auto max-w-[720px] px-4 pb-10 pt-7 sm:pt-9">
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold tracking-[-0.025em] text-[#17211C] sm:text-[28px]">
+            Escolha uma congregação
+          </h2>
+          <p className="mt-1.5 text-sm leading-6 text-[#6F7872] sm:text-base">
+            Selecione a congregação que deseja acessar.
+          </p>
+        </div>
 
         {error && (
-          <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="mb-5 rounded-[18px] border border-[#B84A4A]/20 bg-[#B84A4A]/8 p-4 text-sm text-[#B84A4A]">
             Não foi possível carregar as congregações.
           </div>
         )}
 
-        <div className="space-y-5">
+        <div className="space-y-3.5">
           {cards.map((congregacao) => (
             <CongregacaoCard
               key={congregacao.id}

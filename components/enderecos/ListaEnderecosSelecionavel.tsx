@@ -113,21 +113,21 @@ export default function ListaEnderecosSelecionavel({
         {!modoSelecao ? (
           <button
             onClick={() => setModoSelecao(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 py-2 text-sm font-semibold text-violet-700"
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-[14px] border border-[#DDE2DB] bg-white px-4 py-2.5 text-sm font-semibold text-[#123D2C] shadow-[0_3px_12px_rgba(18,61,44,0.035)] transition hover:border-[#8FAF72]/60 hover:bg-[#F9FBF7] active:scale-[0.99]"
           >
             <CheckSquare className="h-4 w-4" />
             Selecionar endereços
           </button>
         ) : (
-          <div className="space-y-2 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200">
+          <div className="space-y-3 rounded-[18px] border border-[#8FAF72]/60 bg-[#F9FBF7] p-3.5 shadow-[0_4px_16px_rgba(18,61,44,0.05)]">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-slate-700">
+              <span className="text-sm font-semibold text-[#123D2C]">
                 {selecionados.length} selecionado(s)
               </span>
 
               <button
                 onClick={cancelarSelecao}
-                className="flex items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-semibold text-slate-600"
+                className="flex min-h-10 items-center gap-1 rounded-xl border border-[#DDE2DB] bg-white px-3 py-2 text-xs font-semibold text-[#6F7872]"
               >
                 <X className="h-4 w-4" />
                 Cancelar
@@ -137,7 +137,7 @@ export default function ListaEnderecosSelecionavel({
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={encaminharSelecionados}
-                className="flex items-center justify-center gap-2 rounded-xl bg-green-600 py-2 text-sm font-semibold text-white"
+                className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#2F6B4F] py-2 text-sm font-semibold text-white transition hover:bg-[#123D2C]"
               >
                 <Send className="h-4 w-4" />
                 WhatsApp
@@ -145,7 +145,7 @@ export default function ListaEnderecosSelecionavel({
 
               <button
                 onClick={copiarSelecionados}
-                className="flex items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 py-2 text-sm font-semibold text-violet-700"
+                className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#DDE2DB] bg-white py-2 text-sm font-semibold text-[#123D2C]"
               >
                 <Copy className="h-4 w-4" />
                 Copiar
@@ -194,18 +194,20 @@ export default function ListaEnderecosSelecionavel({
           return (
             <div
               key={endereco.id}
-              className={`relative rounded-3xl transition-all ${
-                selecionado ? "ring-2 ring-violet-600" : ""
+              className={`relative rounded-[20px] transition-all ${
+                selecionado
+                  ? "ring-2 ring-[#2F6B4F] ring-offset-2 ring-offset-[#F4F5F0]"
+                  : ""
               }`}
             >
               {modoSelecao && (
                 <button
                   type="button"
                   onClick={() => toggleSelecionado(endereco.id)}
-                  className={`absolute right-4 top-14 z-10 flex h-8 w-8 items-center justify-center rounded-full border transition ${
+                  className={`absolute right-4 top-14 z-10 flex h-9 w-9 items-center justify-center rounded-full border transition ${
                     selecionado
-                      ? "border-violet-700 bg-violet-700 text-white"
-                      : "border-slate-300 bg-white text-transparent"
+                      ? "border-[#123D2C] bg-[#123D2C] text-white"
+                      : "border-[#DDE2DB] bg-white text-transparent"
                   }`}
                 >
                   <Check className="h-4 w-4" />

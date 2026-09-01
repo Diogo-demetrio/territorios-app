@@ -249,16 +249,16 @@ await atualizarUsuario({
   }
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 px-4 py-6">
-      <div className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-[#0B2B20]/45 px-4 py-6 [font-family:var(--font-geist-sans),Arial,sans-serif]">
+      <div className="max-h-full w-full max-w-md overflow-y-auto rounded-[24px] border border-[#DDE2DB] bg-white p-5 shadow-2xl">
         <div className="mb-5 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-100 text-violet-700">
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#DCE8D5] text-[#123D2C]">
               <UserRound className="h-5 w-5" />
             </div>
 
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-[#17211C]">
                 {editando
                   ? possuiAcesso
                     ? "Editar usuário"
@@ -266,7 +266,7 @@ await atualizarUsuario({
                   : "Novo usuário"}
               </h2>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#6F7872]">
                 {possuiAcesso
                   ? "Atualize os dados administrativos."
                   : "Será criada uma conta com senha temporária."}
@@ -278,7 +278,7 @@ await atualizarUsuario({
             type="button"
             onClick={fechar}
             disabled={salvando}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-slate-100"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-[#6F7872] transition hover:bg-[#F4F5F0]"
             aria-label="Fechar"
           >
             <X className="h-5 w-5" />
@@ -314,12 +314,12 @@ await atualizarUsuario({
             }
             disabled={possuiAcesso}
             placeholder="usuario@email.com"
-            className="w-full bg-transparent text-sm outline-none disabled:cursor-not-allowed disabled:text-slate-400"
+            className="w-full bg-transparent text-sm outline-none disabled:cursor-not-allowed disabled:text-[#6F7872]"
           />
         </Campo>
 
         {possuiAcesso && (
-          <p className="-mt-2 mb-3 text-xs text-slate-500">
+          <p className="-mt-2 mb-3 text-xs text-[#6F7872]">
             O e-mail de acesso não pode ser alterado nesta etapa.
           </p>
         )}
@@ -353,7 +353,7 @@ await atualizarUsuario({
               )
             }
             disabled={!isSuperAdmin}
-            className="w-full bg-transparent text-sm outline-none disabled:cursor-not-allowed disabled:text-slate-500"
+            className="w-full bg-transparent text-sm outline-none disabled:cursor-not-allowed disabled:text-[#6F7872]"
           >
             <option value="">
               Selecione
@@ -400,7 +400,7 @@ await atualizarUsuario({
         </Campo>
 
         {!possuiAcesso && (
-          <div className="mb-4 rounded-2xl bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">
+          <div className="mb-4 rounded-[16px] border border-[#B78335]/20 bg-[#B78335]/10 p-3 text-xs leading-relaxed text-[#805A23]">
             Ao salvar, será gerada uma senha temporária. Ela será
             exibida uma única vez junto com a mensagem pronta para
             WhatsApp.
@@ -412,7 +412,7 @@ await atualizarUsuario({
             type="button"
             onClick={fechar}
             disabled={salvando}
-            className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 disabled:opacity-60"
+            className="min-h-12 flex-1 rounded-[14px] border border-[#DDE2DB] bg-white py-3 text-sm font-semibold text-[#17211C] transition hover:bg-[#F4F5F0] disabled:opacity-60"
           >
             Cancelar
           </button>
@@ -421,7 +421,7 @@ await atualizarUsuario({
             type="button"
             onClick={salvar}
             disabled={salvando}
-            className="flex-1 rounded-xl bg-violet-700 py-3 text-sm font-semibold text-white disabled:opacity-60"
+            className="min-h-12 flex-1 rounded-[14px] bg-[#123D2C] py-3 text-sm font-semibold text-white transition hover:bg-[#0B2B20] disabled:opacity-60"
           >
             {salvando
               ? "Salvando..."
@@ -446,12 +446,12 @@ function Campo({
 }) {
   return (
     <label className="mb-3 block">
-      <span className="mb-1 block text-sm font-semibold text-slate-700">
+      <span className="mb-1 block text-sm font-semibold text-[#17211C]">
         {titulo}
       </span>
 
-      <span className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-3 focus-within:border-violet-500">
-        <Icon className="h-4 w-4 shrink-0 text-slate-400" />
+      <span className="flex min-h-12 items-center gap-2 rounded-xl border border-[#DDE2DB] px-3 py-3 transition focus-within:border-[#2F6B4F] focus-within:ring-2 focus-within:ring-[#DCE8D5]">
+        <Icon className="h-4 w-4 shrink-0 text-[#2F6B4F]" />
 
         {children}
       </span>

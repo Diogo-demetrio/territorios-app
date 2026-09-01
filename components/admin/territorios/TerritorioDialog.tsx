@@ -419,22 +419,22 @@ fechar();
   if (!aberto) return null;
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center overflow-y-auto bg-black/40 px-4 py-6">
-      <div className="w-full max-w-lg rounded-3xl bg-white p-5 shadow-2xl">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center overflow-y-auto bg-[#0B2B20]/45 px-4 py-6 [font-family:var(--font-geist-sans),Arial,sans-serif]">
+      <div className="max-h-full w-full max-w-lg overflow-y-auto rounded-[24px] border border-[#DDE2DB] bg-white p-5 shadow-2xl">
         <div className="mb-5 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-100 text-violet-700">
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#DCE8D5] text-[#123D2C]">
               <Map className="h-5 w-5" />
             </div>
 
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-[#17211C]">
                 {editando
                   ? "Editar território"
                   : "Novo território"}
               </h2>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#6F7872]">
                 Defina os dados administrativos.
               </p>
             </div>
@@ -444,7 +444,7 @@ fechar();
             type="button"
             onClick={fechar}
             disabled={salvando}
-            className="grid h-9 w-9 place-items-center rounded-full text-slate-500 hover:bg-slate-100"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-[#6F7872] transition hover:bg-[#F4F5F0]"
             aria-label="Fechar"
           >
             <X className="h-5 w-5" />
@@ -466,7 +466,7 @@ fechar();
                 }
               }}
               disabled={!isSuperAdmin}
-              className="w-full rounded-xl border border-slate-200 p-3 text-sm disabled:bg-slate-100"
+              className={campoClasses}
             >
               <option value="">Selecione</option>
 
@@ -493,7 +493,7 @@ fechar();
                   setNome("");
                 }
               }}
-              className="w-full rounded-xl border border-slate-200 p-3 text-sm"
+              className={campoClasses}
             >
               <option value="">Selecione</option>
 
@@ -519,7 +519,7 @@ fechar();
               disabled={
                 !cidadeId || carregandoBairros
               }
-              className="w-full rounded-xl border border-slate-200 p-3 text-sm disabled:bg-slate-100"
+              className={campoClasses}
             >
               <option value="">
                 {carregandoBairros
@@ -553,7 +553,7 @@ fechar();
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">
+              <label className="mb-1 block text-sm font-semibold text-[#17211C]">
                 Número
               </label>
 
@@ -572,19 +572,19 @@ fechar();
   }
 }}
                 disabled={calculandoNumero}
-                className="w-full rounded-xl border border-slate-200 p-3 text-sm disabled:bg-slate-100"
+                className={campoClasses}
               />
             </div>
 
             <div className="col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-slate-700">
+              <label className="mb-1 block text-sm font-semibold text-[#17211C]">
                 Nome
               </label>
 
               <input
   value={nome}
   readOnly
-  className="w-full rounded-xl border border-slate-200 bg-slate-100 p-3 text-sm text-slate-700"
+  className="h-12 w-full rounded-xl border border-[#DDE2DB] bg-[#E9ECE5] px-3 text-sm text-[#6F7872]"
 />
             </div>
           </div>
@@ -598,7 +598,7 @@ fechar();
                 )
               }
               placeholder="Opcional"
-              className="w-full rounded-xl border border-slate-200 p-3 text-sm"
+              className={campoClasses}
             />
           </Campo>
 
@@ -612,19 +612,19 @@ fechar();
               }
               rows={3}
               placeholder="Opcional"
-              className="w-full resize-none rounded-xl border border-slate-200 p-3 text-sm"
+              className="w-full resize-none rounded-xl border border-[#DDE2DB] bg-white p-3 text-sm text-[#17211C] outline-none transition focus:border-[#2F6B4F] focus:ring-2 focus:ring-[#DCE8D5]"
             />
           </Campo>
 
           {editando && (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <div className="rounded-[16px] border border-[#DDE2DB] bg-[#F4F5F0] p-3">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">
+                  <p className="text-sm font-semibold text-[#17211C]">
                     Território ativo
                   </p>
 
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[#6F7872]">
                     Desativar não apaga os endereços.
                   </p>
                 </div>
@@ -636,8 +636,8 @@ fechar();
                   }
                   className={`relative h-7 w-12 rounded-full transition ${
                     ativo
-                      ? "bg-green-600"
-                      : "bg-slate-300"
+                      ? "bg-[#2F6B4F]"
+                      : "bg-[#C9D0C9]"
                   }`}
                 >
                   <span
@@ -658,7 +658,7 @@ fechar();
             type="button"
             onClick={fechar}
             disabled={salvando}
-            className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 disabled:opacity-60"
+            className="min-h-12 flex-1 rounded-[14px] border border-[#DDE2DB] bg-white py-3 text-sm font-semibold text-[#17211C] transition hover:bg-[#F4F5F0] disabled:opacity-60"
           >
             Cancelar
           </button>
@@ -669,7 +669,7 @@ fechar();
             disabled={
               salvando || calculandoNumero
             }
-            className="flex-1 rounded-xl bg-violet-700 py-3 text-sm font-semibold text-white disabled:opacity-60"
+            className="min-h-12 flex-1 rounded-[14px] bg-[#123D2C] py-3 text-sm font-semibold text-white transition hover:bg-[#0B2B20] disabled:opacity-60"
           >
             {salvando
               ? "Salvando..."
@@ -690,7 +690,7 @@ function Campo({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-sm font-semibold text-slate-700">
+      <label className="mb-1 block text-sm font-semibold text-[#17211C]">
         {label}
       </label>
 
@@ -698,3 +698,6 @@ function Campo({
     </div>
   );
 }
+
+const campoClasses =
+  "h-12 w-full rounded-xl border border-[#DDE2DB] bg-white px-3 text-sm text-[#17211C] outline-none transition focus:border-[#2F6B4F] focus:ring-2 focus:ring-[#DCE8D5] disabled:bg-[#E9ECE5] disabled:text-[#6F7872]";

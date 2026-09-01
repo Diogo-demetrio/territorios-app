@@ -39,7 +39,10 @@ export default function AdminEnderecoArea({
       <button
         type="button"
         onClick={() => setDialogAberto(true)}
-        className="fixed bottom-28 right-6 z-40 grid h-14 w-14 place-items-center rounded-full bg-violet-700 text-white shadow-lg shadow-violet-700/40 transition hover:brightness-110"
+        className="fixed bottom-28 z-40 grid h-14 w-14 place-items-center rounded-full bg-[#123D2C] text-white shadow-[0_8px_24px_rgba(11,43,32,0.30)] transition hover:bg-[#0B2B20] active:scale-95"
+        style={{
+          right: "max(1.5rem, calc((100vw - 760px) / 2 + 1.5rem))",
+        }}
         aria-label="Novo endereço"
         title="Novo endereço"
       >

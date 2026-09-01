@@ -268,23 +268,23 @@ function TerritoriosAdminContent() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 p-4 pb-24">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-4 flex items-center gap-3">
+    <main className="min-h-screen bg-[#F4F5F0] px-4 py-5 pb-24 [font-family:var(--font-geist-sans),Arial,sans-serif] text-[#17211C] sm:py-7">
+      <div className="mx-auto max-w-[820px]">
+        <header className="mb-5 flex items-center gap-3">
           <Link
             href={rotaVoltar}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-slate-700 shadow-sm ring-1 ring-slate-200"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#DDE2DB] bg-white text-[#123D2C] shadow-[0_3px_12px_rgba(23,33,28,0.05)] transition hover:border-[#8FAF72] active:bg-[#F4F5F0]"
             aria-label="Voltar"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
 
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2F6B4F]">
               Configurações
             </p>
 
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-[#17211C] sm:text-3xl">
               Territórios
             </h1>
           </div>
@@ -292,19 +292,19 @@ function TerritoriosAdminContent() {
           <button
             type="button"
             onClick={carregarDados}
-            className="grid h-10 w-10 place-items-center rounded-full bg-white text-slate-600 shadow-sm ring-1 ring-slate-200"
+            className="grid h-11 w-11 place-items-center rounded-full border border-[#DDE2DB] bg-white text-[#123D2C] shadow-[0_3px_12px_rgba(23,33,28,0.05)] transition hover:border-[#8FAF72] hover:bg-[#F4F5F0] active:bg-[#DCE8D5]"
             aria-label="Atualizar territórios"
           >
             <RefreshCw className="h-4 w-4" />
           </button>
-        </div>
+        </header>
 
         {carregando ? (
-          <div className="rounded-2xl bg-white p-4 text-sm text-slate-500">
+          <div className="rounded-[16px] border border-[#DDE2DB] bg-white p-4 text-sm text-[#6F7872]">
             Verificando acesso...
           </div>
         ) : !usuario || !isAdmin ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="rounded-[16px] border border-[#B84A4A]/25 bg-[#B84A4A]/8 p-4 text-sm text-[#8F3636]">
             Você não possui permissão para acessar esta página.
           </div>
         ) : (
@@ -312,15 +312,15 @@ function TerritoriosAdminContent() {
             <button
               type="button"
               onClick={novoTerritorio}
-              className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-700 py-3 text-sm font-semibold text-white"
+              className="mb-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-[#123D2C] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0B2B20] active:opacity-90"
             >
               <Plus className="h-4 w-4" />
               Novo território
             </button>
 
-            <section className="mb-4 space-y-3 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-              <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-3">
-                <Search className="h-4 w-4 text-slate-500" />
+            <section className="mb-4 space-y-3 rounded-[20px] border border-[#DDE2DB] bg-white p-4 shadow-[0_5px_20px_rgba(23,33,28,0.05)]">
+              <div className="flex h-12 items-center gap-2 rounded-[14px] border border-[#DDE2DB] bg-white px-3 transition focus-within:border-[#2F6B4F] focus-within:ring-2 focus-within:ring-[#DCE8D5]">
+                <Search className="h-4 w-4 text-[#6F7872]" />
 
                 <input
                   value={busca}
@@ -328,7 +328,7 @@ function TerritoriosAdminContent() {
                     setBusca(event.target.value)
                   }
                   placeholder="Buscar território ou bairro"
-                  className="flex-1 bg-transparent text-sm outline-none"
+                  className="min-w-0 flex-1 bg-transparent text-sm text-[#17211C] outline-none placeholder:text-[#6F7872]"
                 />
               </div>
 
@@ -341,7 +341,7 @@ function TerritoriosAdminContent() {
                     )
                   }
                   disabled={!isSuperAdmin}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm disabled:bg-slate-100"
+                  className="h-12 w-full rounded-xl border border-[#DDE2DB] bg-white px-3 text-sm text-[#17211C] outline-none transition focus:border-[#2F6B4F] focus:ring-2 focus:ring-[#DCE8D5] disabled:bg-[#E9ECE5] disabled:text-[#6F7872]"
                 >
                   <option value="">
                     Todas as congregações
@@ -366,7 +366,7 @@ function TerritoriosAdminContent() {
                       event.target.value
                     )
                   }
-                  className="w-full rounded-xl border border-slate-200 p-3 text-sm"
+                  className="h-12 w-full rounded-xl border border-[#DDE2DB] bg-white px-3 text-sm text-[#17211C] outline-none transition focus:border-[#2F6B4F] focus:ring-2 focus:ring-[#DCE8D5]"
                 >
                   <option value="">
                     Todas as cidades
@@ -383,7 +383,7 @@ function TerritoriosAdminContent() {
                 </select>
               </div>
 
-              <label className="flex items-center gap-2 text-sm text-slate-600">
+              <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-[#6F7872]">
                 <input
                   type="checkbox"
                   checked={mostrarInativos}
@@ -392,20 +392,20 @@ function TerritoriosAdminContent() {
                       event.target.checked
                     )
                   }
-                  className="h-4 w-4"
+                  className="h-4 w-4 accent-[#123D2C]"
                 />
 
                 Mostrar territórios inativos
               </label>
 
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#6F7872]">
                 {territoriosFiltrados.length} território(s)
                 encontrado(s).
               </p>
             </section>
 
             {carregandoDados ? (
-              <div className="rounded-2xl bg-white p-4 text-sm text-slate-500">
+              <div className="rounded-[16px] border border-[#DDE2DB] bg-white p-4 text-sm text-[#6F7872]">
                 Carregando territórios...
               </div>
             ) : (
@@ -439,8 +439,8 @@ export default function TerritoriosAdminPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-slate-100 p-4">
-          <div className="mx-auto max-w-3xl rounded-2xl bg-white p-4 text-sm text-slate-500">
+        <main className="min-h-screen bg-[#F4F5F0] p-4 [font-family:var(--font-geist-sans),Arial,sans-serif]">
+          <div className="mx-auto max-w-[820px] rounded-[16px] border border-[#DDE2DB] bg-white p-4 text-sm text-[#6F7872]">
             Carregando territórios...
           </div>
         </main>

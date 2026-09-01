@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ChevronDown, Filter, Layers3, MapPin } from "lucide-react";
 import MapaClient from "@/components/maps/MapaClient";
 import type { LimiteCongregacao } from "@/components/maps/types";
 
@@ -44,6 +45,7 @@ export default function MapaFiltros({
   const [status, setStatus] = useState("todos");
   const [somenteDuplicados, setSomenteDuplicados] = useState(false);
   const [limitesSelecionados, setLimitesSelecionados] = useState<number[]>([]);
+  const [filtrosAbertos, setFiltrosAbertos] = useState(false);
 
   /*
    * Proteção adicional:
@@ -197,6 +199,9 @@ export default function MapaFiltros({
   ]);
 
   const totalDuplicados = duplicadosPorId.size;
+  const totalFiltrosAtivos = [cidade, bairro, territorio, status].filter(
+    (valor) => valor !== "todos"
+  ).length;
 
   const limitesPorIdioma = useMemo(() => {
     const grupos = new Map<string, LimiteCongregacao[]>();
@@ -224,9 +229,27 @@ export default function MapaFiltros({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+    <div className="space-y-3">
+      <div className="rounded-[18px] border border-[#DDE2DB] bg-white p-3 shadow-[0_4px_16px_rgba(23,33,28,0.04)] sm:p-4">
+        <button
+          type="button"
+          aria-expanded={filtrosAbertos}
+          onClick={() => setFiltrosAbertos((abertos) => !abertos)}
+          className="flex min-h-11 w-full items-center gap-3 text-left md:hidden"
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#DCE8D5] text-[#123D2C]">
+            <Filter className="h-4 w-4" />
+          </span>
+          <span className="flex-1 text-sm font-semibold">Filtros</span>
+          {totalFiltrosAtivos > 0 && (
+            <span className="rounded-full bg-[#123D2C] px-2.5 py-1 text-xs font-semibold text-white">
+              {totalFiltrosAtivos}
+            </span>
+          )}
+          <ChevronDown className={`h-4 w-4 text-[#6F7872] transition ${filtrosAbertos ? "rotate-180" : ""}`} />
+        </button>
+
+        <div className={`${filtrosAbertos ? "mt-3 grid" : "hidden"} gap-3 border-t border-[#DDE2DB] pt-3 md:mt-0 md:grid md:grid-cols-4 md:border-0 md:pt-0`}>
           <CampoFiltro label="Cidade">
             <select
               value={cidade}
@@ -235,7 +258,7 @@ export default function MapaFiltros({
                 setBairro("todos");
                 setTerritorio("todos");
               }}
-              className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 pr-10 text-sm font-medium shadow-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200"
+              className={selectClasses}
             >
               <option value="todos">
                 Todas as cidades
@@ -259,7 +282,7 @@ export default function MapaFiltros({
                 setBairro(evento.target.value);
                 setTerritorio("todos");
               }}
-              className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 pr-10 text-sm font-medium shadow-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200"
+              className={selectClasses}
             >
               <option value="todos">Todos os bairros</option>
               {bairros.map((opcao) => (
@@ -276,7 +299,7 @@ export default function MapaFiltros({
               onChange={(evento) =>
                 setTerritorio(evento.target.value)
               }
-              className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 pr-10 text-sm font-medium shadow-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200"
+              className={selectClasses}
             >
               <option value="todos">
                 Todos os territórios
@@ -301,7 +324,7 @@ export default function MapaFiltros({
               onChange={(evento) =>
                 setStatus(evento.target.value)
               }
-              className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 pr-10 text-sm font-medium shadow-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200"
+              className={selectClasses}
             >
               <option value="todos">
                 Todos os status
@@ -326,39 +349,45 @@ export default function MapaFiltros({
           </CampoFiltro>
         </div>
 
-        <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 ring-1 ring-red-100">
+        <label className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition md:mt-3 ${filtrosAbertos ? "mt-3" : "mt-2"} ${somenteDuplicados ? "border border-[#B84A4A]/25 bg-[#B84A4A]/8 text-[#8F3636]" : "border border-[#DDE2DB] bg-[#F4F5F0] text-[#17211C]"}`}>
           <input
             type="checkbox"
             checked={somenteDuplicados}
             onChange={(evento) => setSomenteDuplicados(evento.target.checked)}
-            className="h-4 w-4 accent-red-600"
+            className="h-4 w-4 accent-[#B84A4A]"
           />
-          <span className="font-semibold">Somente possíveis duplicados</span>
-          <span className="ml-auto text-xs">
-            {totalDuplicados} endereço(s)
+          <span className="font-medium">Possíveis duplicados</span>
+          <span className="ml-auto rounded-full bg-white/80 px-2 py-0.5 text-xs font-semibold">
+            {totalDuplicados}
           </span>
         </label>
       </div>
 
       {podeVerLimites && limitesPorIdioma.length > 0 && (
-        <details className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-          <summary className="cursor-pointer list-none px-4 py-4 text-sm font-semibold text-slate-700">
+        <details className="group rounded-[16px] border border-[#DDE2DB] bg-white shadow-[0_3px_14px_rgba(23,33,28,0.04)]">
+          <summary className="cursor-pointer list-none px-3 py-3 text-sm font-semibold text-[#17211C] sm:px-4">
             <span className="flex items-center justify-between gap-3">
-              Limites de congregações
-              <span className="text-xs font-normal text-slate-500">
-                {limitesSelecionados.length} selecionado(s) ▾
+              <span className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#DCE8D5] text-[#123D2C]">
+                  <Layers3 className="h-4 w-4" />
+                </span>
+                Limites de congregações
+              </span>
+              <span className="flex items-center gap-2 text-xs font-normal text-[#6F7872]">
+                {limitesSelecionados.length} selecionado(s)
+                <ChevronDown className="h-4 w-4 transition group-open:rotate-180" />
               </span>
             </span>
           </summary>
 
-          <div className="space-y-4 border-t border-slate-100 px-4 py-4">
-            <p className="text-xs text-slate-500">
+          <div className="space-y-4 border-t border-[#DDE2DB] px-4 py-4">
+            <p className="text-xs text-[#6F7872]">
               Camada apenas visual. A seleção não altera os endereços.
             </p>
 
             {limitesPorIdioma.map(([idioma, opcoes]) => (
               <fieldset key={idioma}>
-                <legend className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <legend className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#2F6B4F]">
                   {idioma}
                 </legend>
 
@@ -366,19 +395,19 @@ export default function MapaFiltros({
                   {opcoes.map((limite) => (
                     <label
                       key={limite.id}
-                      className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+                      className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-[#DDE2DB] px-3 py-2.5 text-sm transition hover:border-[#8FAF72]"
                     >
                       <input
                         type="checkbox"
                         checked={limitesSelecionados.includes(limite.id)}
                         onChange={() => alternarLimite(limite.id)}
-                        className="h-4 w-4 accent-violet-700"
+                        className="h-4 w-4 accent-[#123D2C]"
                       />
                       <span
                         className="h-3 w-3 shrink-0 rounded-full"
                         style={{ backgroundColor: limite.cor }}
                       />
-                      <span className="font-medium text-slate-700">
+                      <span className="font-medium text-[#17211C]">
                         {limite.nome}
                         {limite.numero ? ` · ${limite.numero}` : ""}
                       </span>
@@ -391,8 +420,9 @@ export default function MapaFiltros({
         </details>
       )}
 
-      <p className="text-sm text-slate-500">
-        📍 {filtrados.length} endereços encontrados
+      <p className="flex items-center gap-2 px-1 text-sm text-[#6F7872]">
+        <MapPin className="h-4 w-4 text-[#2F6B4F]" />
+        <span><strong className="font-semibold text-[#17211C]">{filtrados.length}</strong> endereços encontrados</span>
       </p>
 
       <MapaClient enderecos={filtrados} limites={limitesVisiveis} />
@@ -409,20 +439,23 @@ function CampoFiltro({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-semibold text-slate-500">
+      <span className="mb-1 block text-xs font-semibold text-[#6F7872]">
         {label}
       </span>
 
       <div className="relative">
         {children}
 
-        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6F7872]">
           ▾
         </span>
       </div>
     </label>
   );
 }
+
+const selectClasses =
+  "h-11 w-full appearance-none rounded-xl border border-[#DDE2DB] bg-white px-3 pr-9 text-sm font-medium text-[#17211C] outline-none transition focus:border-[#2F6B4F] focus:ring-2 focus:ring-[#DCE8D5]";
 
 function normalizar(valor: unknown) {
   return String(valor ?? "")

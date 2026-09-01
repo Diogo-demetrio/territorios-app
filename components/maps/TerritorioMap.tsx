@@ -70,8 +70,8 @@ export default function TerritorioMap({ enderecos, limites }: Props) {
   const centro = pontos[0]?.coords ?? [-28.6778, -49.3697];
 
   return (
-    <div className="relative z-0 mb-24 overflow-hidden rounded-3xl bg-white shadow ring-1 ring-slate-200">
-      <MapContainer center={centro} zoom={13} className="h-[55vh] w-full">
+    <div className="relative z-0 mb-24 overflow-hidden rounded-[20px] border border-[#DDE2DB] bg-white shadow-[0_8px_28px_rgba(23,33,28,0.08)]">
+      <MapContainer center={centro} zoom={13} className="h-[60vh] min-h-[440px] w-full sm:h-[560px]">
         <TileLayer
           attribution="© OpenStreetMap"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -133,9 +133,9 @@ export default function TerritorioMap({ enderecos, limites }: Props) {
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <Map className="h-4 w-4 text-violet-700" />
+                    <Map className="h-4 w-4 text-[#2F6B4F]" />
                     <span>Território:</span>
-                    <span className="font-semibold text-violet-700">
+                    <span className="font-semibold text-[#123D2C]">
                       {endereco.territorios?.nome}
                     </span>
                   </div>
@@ -165,7 +165,7 @@ export default function TerritorioMap({ enderecos, limites }: Props) {
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     <a
                       href={`/territorios/${endereco.territorios?.id}`}
-                      className="inline-flex items-center justify-center gap-1 rounded-lg border border-violet-700 bg-white px-3 py-2 text-sm font-semibold !text-violet-700 no-underline shadow-sm hover:bg-violet-50"
+                      className="inline-flex min-h-11 items-center justify-center gap-1 rounded-xl border border-[#DDE2DB] bg-white px-3 py-2 text-sm font-semibold !text-[#123D2C] no-underline shadow-sm hover:bg-[#F4F5F0]"
                     >
                       <MapPinned className="h-4 w-4" />
                       Abrir
@@ -174,7 +174,7 @@ export default function TerritorioMap({ enderecos, limites }: Props) {
                     <a
                       href={mapsUrl}
                       target="_blank"
-                      className="inline-flex items-center justify-center gap-1 rounded-lg bg-violet-700 px-3 py-2 text-sm font-semibold !text-white no-underline shadow-sm hover:bg-violet-800"
+                      className="inline-flex min-h-11 items-center justify-center gap-1 rounded-xl bg-[#123D2C] px-3 py-2 text-sm font-semibold !text-white no-underline shadow-sm hover:bg-[#0B2B20]"
                     >
                       <Navigation className="h-4 w-4" />
                       Maps
