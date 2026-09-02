@@ -14,10 +14,13 @@ import {
 
 export default async function Territorio({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ publico?: string }>;
 }) {
   const { id } = await params;
+  const { publico } = await searchParams;
 
   const { data: territorioResumo, error: erroTerritorio } = await supabase
     .from("v_territorios_resumo")
@@ -120,7 +123,11 @@ export default async function Territorio({
       <header className="sticky top-0 z-20 bg-[#123D2C] px-4 py-4 text-white shadow-[0_5px_20px_rgba(11,43,32,0.16)] sm:py-5">
         <div className="mx-auto flex max-w-[760px] items-center gap-3">
           <Link
-            href={`/congregacoes/${territorio.congregacao_id}/territorios`}
+            href={
+              publico
+                ? `/c/${publico}/territorios`
+                : `/congregacoes/${territorio.congregacao_id}/territorios`
+            }
             className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[#DCE8D5] transition hover:bg-white/10 active:scale-95 active:bg-white/15"
             aria-label="Voltar"
           >
@@ -260,6 +267,7 @@ export default async function Territorio({
         congregacaoId={String(territorio.congregacao_id)}
         variant="green"
         activeItem="territorios"
+        publicSlug={publico}
       />
     </main>
   );

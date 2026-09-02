@@ -16,6 +16,7 @@ type Props = {
   enderecos: number;
   publicadores: number;
   grupos: number;
+  publicSlug?: string;
 };
 
 const itens = [
@@ -59,7 +60,11 @@ export default function CongregacaoDashboard({
   enderecos,
   publicadores,
   grupos,
+  publicSlug,
 }: Props) {
+  const itensVisiveis = publicSlug
+    ? itens.filter((item) => item.rota === "territorios" || item.rota === "mapa")
+    : itens;
   return (
     <>
       <div className="rounded-[24px] bg-[#123D2C] p-5 text-white shadow-[0_10px_28px_rgba(11,43,32,0.16)] sm:p-6">
@@ -82,11 +87,12 @@ export default function CongregacaoDashboard({
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {itens.map((item) => {
+        {itensVisiveis.map((item) => {
           const Icon = item.icone;
 
-          const href =
-            item.rota === "configuracoes"
+          const href = publicSlug
+            ? `/c/${publicSlug}/${item.rota}`
+            : item.rota === "configuracoes"
               ? `/configuracoes?congregacao=${congregacaoId}`
               : `/congregacoes/${congregacaoId}/${item.rota}`;
 

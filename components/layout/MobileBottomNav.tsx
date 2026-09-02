@@ -14,16 +14,39 @@ type Props = {
   congregacaoId: string;
   variant?: "default" | "green";
   activeItem?: "congregacoes" | "territorios" | "mapa" | "publicadores" | "configuracoes";
+  publicSlug?: string;
 };
 
 export default function MobileBottomNav({
   congregacaoId,
   variant = "default",
   activeItem,
+  publicSlug,
 }: Props) {
   const pathname = usePathname();
 
-  const itens = [
+  const itensPublicos = [
+    {
+      id: "congregacoes" as const,
+      href: `/c/${publicSlug}`,
+      label: "Início",
+      icon: Building2,
+    },
+    {
+      id: "territorios" as const,
+      href: `/c/${publicSlug}/territorios`,
+      label: "Territórios",
+      icon: Map,
+    },
+    {
+      id: "mapa" as const,
+      href: `/c/${publicSlug}/mapa`,
+      label: "Mapa",
+      icon: MapPinned,
+    },
+  ];
+
+  const itensAdministrativos = [
     {
       id: "congregacoes" as const,
       href: "/",
@@ -56,6 +79,8 @@ export default function MobileBottomNav({
 },
   ];
 
+  const itens = publicSlug ? itensPublicos : itensAdministrativos;
+
   return (
     <nav
       className={`fixed bottom-0 left-0 right-0 z-50 text-white shadow-[0_-6px_24px_rgba(11,43,32,0.14)] ${
@@ -70,8 +95,10 @@ export default function MobileBottomNav({
 
           const painelDaCongregacao =
             variant === "green" &&
-            item.href === "/" &&
-            pathname === `/congregacoes/${congregacaoId}`;
+            item.id === "congregacoes" &&
+            (publicSlug
+              ? pathname === `/c/${publicSlug}`
+              : pathname === `/congregacoes/${congregacaoId}`);
 
           const ativo =
             activeItem

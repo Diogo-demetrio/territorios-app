@@ -27,9 +27,10 @@ type TerritorioResumo = {
 
 type Props = {
   territorios: TerritorioResumo[];
+  publicSlug?: string;
 };
 
-export function FiltroTerritorios({ territorios }: Props) {
+export function FiltroTerritorios({ territorios, publicSlug }: Props) {
   const [busca, setBusca] = useState("");
 
   const territoriosFiltrados = useMemo(() => {
@@ -101,7 +102,11 @@ export function FiltroTerritorios({ territorios }: Props) {
             {lista.map((territorio) => (
               <Link
                 key={territorio.id}
-                href={`/territorios/${territorio.id}`}
+                href={
+                  publicSlug
+                    ? `/territorios/${territorio.id}?publico=${encodeURIComponent(publicSlug)}`
+                    : `/territorios/${territorio.id}`
+                }
                 className="group block rounded-[19px] border border-[#DDE2DB]/90 bg-white p-4 shadow-[0_4px_16px_rgba(18,61,44,0.045)] transition duration-200 hover:-translate-y-0.5 hover:border-[#8FAF72]/60 hover:shadow-[0_8px_24px_rgba(18,61,44,0.085)] active:scale-[0.99] active:bg-[#FAFBF8]"
               >
                 <div className="flex items-start justify-between gap-3">

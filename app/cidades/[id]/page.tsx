@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 
 type CidadePageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ congregacao?: string }>;
+  searchParams: Promise<{ congregacao?: string; publico?: string }>;
 };
 
 export default async function Cidade({
@@ -12,7 +12,7 @@ export default async function Cidade({
   searchParams,
 }: CidadePageProps) {
   const { id } = await params;
-  const { congregacao } = await searchParams;
+  const { congregacao, publico } = await searchParams;
 
   const cidadeId = Number(id);
   const congregacaoId = Number(congregacao);
@@ -77,7 +77,7 @@ export default async function Cidade({
       <div className="mx-auto max-w-3xl">
         <div className="mb-5 flex items-center gap-3">
           <Link
-            href={`/congregacoes/${congregacaoId}`}
+            href={publico ? `/c/${publico}` : `/congregacoes/${congregacaoId}`}
             className="grid h-10 w-10 place-items-center rounded-full bg-white text-slate-600 shadow-sm ring-1 ring-slate-200"
             aria-label="Voltar para a congregação"
           >
@@ -104,7 +104,10 @@ export default async function Cidade({
             {territorios.map((territorio) => (
               <Link
                 key={territorio.id}
-                href={`/territorios/${territorio.id}?congregacao=${congregacaoId}`}
+                href={
+                  `/territorios/${territorio.id}?congregacao=${congregacaoId}` +
+                  (publico ? `&publico=${encodeURIComponent(publico)}` : "")
+                }
                 className="block rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:ring-violet-300"
               >
                 <div className="flex items-start justify-between gap-3">
