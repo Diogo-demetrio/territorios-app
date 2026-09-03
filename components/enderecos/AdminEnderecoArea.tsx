@@ -17,12 +17,12 @@ type Props = {
 export default function AdminEnderecoArea({
   territorio,
 }: Props) {
-  const { isSuporte } = useAuth();
+  const { isAdmin } = useAuth();
 
   const [dialogAberto, setDialogAberto] =
     useState(false);
 
-  if (!isSuporte) {
+  if (!isAdmin) {
     return null;
   }
 

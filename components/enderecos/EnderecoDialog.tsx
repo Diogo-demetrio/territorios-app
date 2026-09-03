@@ -688,7 +688,7 @@ export default function EnderecoDialog({
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center overflow-y-auto bg-black/40 px-4 py-6">
       <div className="my-auto w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl">
-        <div className="flex items-start justify-between gap-3 border-b bg-violet-700 px-5 py-4 text-white">
+        <div className="flex items-start justify-between gap-3 border-b border-[#0B2B20] bg-[#123D2C] px-5 py-4 text-white">
           <div>
             <p className="text-xs opacity-80">
               {editando
@@ -881,7 +881,7 @@ export default function EnderecoDialog({
                   <button
                     type="button"
                     onClick={usarLocalizacao}
-                    className="flex shrink-0 items-center gap-1 rounded-xl bg-violet-100 px-3 text-sm font-semibold text-violet-700"
+                    className="flex shrink-0 items-center gap-1 rounded-xl bg-[#DCE8D5] px-3 text-sm font-semibold text-[#123D2C] transition hover:bg-[#C8D9BE]"
                   >
                     <MapPin className="h-4 w-4" />
                     GPS
@@ -951,7 +951,7 @@ export default function EnderecoDialog({
               type="button"
               onClick={salvar}
               disabled={salvando || carregandoOpcoes}
-              className="flex-1 rounded-xl bg-violet-700 py-3 text-sm font-semibold text-white disabled:opacity-60"
+              className="flex-1 rounded-xl bg-[#123D2C] py-3 text-sm font-semibold text-white transition hover:bg-[#0B2B20] disabled:opacity-60"
             >
               {salvando
                 ? "Salvando..."

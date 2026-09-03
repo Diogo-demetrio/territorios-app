@@ -29,7 +29,7 @@ type Props = {
 export default function EnderecosInativos({
   territorioId,
 }: Props) {
-  const { isSuporte } = useAuth();
+  const { isAdmin } = useAuth();
 
   const [aberto, setAberto] = useState(false);
   const [carregando, setCarregando] = useState(false);
@@ -120,7 +120,7 @@ export default function EnderecosInativos({
     alert("Endereço reativado com sucesso.");
   }
 
-  if (!isSuporte) {
+  if (!isAdmin) {
     return null;
   }
 

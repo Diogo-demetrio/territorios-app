@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import EditarEnderecoForm from "@/components/enderecos/EditarEnderecoForm";
+import EditarStatusEndereco from "@/components/enderecos/EditarStatusEndereco";
 import EnderecoActions from "@/components/actions/EnderecoActions";
 import { useAuth } from "@/components/auth/AuthProvider";
 
@@ -31,7 +32,8 @@ export default function StatusEndereco({
   endereco,
 }: Props) {
 
-  const { isSuporte } = useAuth();
+  const { usuario, isAdmin } = useAuth();
+  const somenteSuporte = usuario?.papel === "suporte";
 
   const statusAtual = normalizarStatus(endereco.status);
   const statusInfo = STATUS_ENDERECO[statusAtual];
@@ -160,9 +162,13 @@ export default function StatusEndereco({
         {statusInfo.label}
       </div>
 
-      {isSuporte && (
-  <EditarEnderecoForm endereco={endereco} />
-)}
+      {isAdmin && (
+        <EditarEnderecoForm endereco={endereco} />
+      )}
+
+      {somenteSuporte && (
+        <EditarStatusEndereco endereco={endereco} />
+      )}
 
       <EnderecoActions
         onMaps={abrirMaps}
